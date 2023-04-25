@@ -1,0 +1,77 @@
+---
+title: "Adjusted Metropolis-Hasting algorithm"
+output: html_notebook
+---
+
+Given $XZ, k$
+
+$$
+\begin{aligned}
+\ell\left(\tau_k^{x z^2},\mu_k^x\right) &=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\log \left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)+\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)^2}{s_{k, i}^{x z^2}+\tau_k^{x z^2}}\right] \\
+& =\sum_{i \in N_{x z}^k}\left[\log \frac{1}{\sqrt{s_{k,i}^{x z^2}+\tau_k^{x z^2}}}-\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)^2}{2\left(s_{k, i}^{x z^2}+\tau_k^{x Z^2}\right)}\right] \\
+L\left(\tau_k^{x z^2}, u_k^x\right)&=\left[\prod_{i \in N_{x_2}^k}\left(\frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x_{22}}}}\right)\right] \cdot \exp \left(\sum_{i \in N_{x_2}^k}-\frac{\left(y_{k, i}^{x 2}-\mu_k^{x 2}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{x_2^2}\right)}\right) \\
+&=\left[\prod_{i \in N_{x z}^k}\left(\frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x 2}}}\right)\right] \cdot \exp \left(\sum_{i \in N_{x z}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{x z^2}+\tau_k^{x z^2}\right)}-\sum_{i \in N_{k z}^k} \frac{\left(\bar{y}_k^{x z}-\mu_k^{x z}\right)^2}{2\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)}\right) \\
+&=\left[\prod_{i \in N_{x z}^k}\left(\frac{1}{\sqrt{s_{k,i}^{x z^2}+\tau_k^{x z^2}}}\right)\right] \cdot \exp \left(-\sum_{i \in N_{x z}} \frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{x z^2}+\tau_k^{x z}\right)}\right)\exp\left(-\sum_{i \in N_{k z}^k} \frac{\left(\bar{y}_k^{x z}-\mu_k^{x z}\right)^2}{2\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)}\right) \\
+&=\left[\prod_{i \in N_{X z}^k} \frac{1}{\sqrt{s_{k,i}^{XZ^2}+\tau_k^{x z^2}}}\right] \cdot \exp \left[\sum_{i \in N_{k z}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{x z}+\tau_k^{x z^2}\right)}\right]\cdot\exp\left[\left(\bar{y}_k^{x z}-\mu_k^{x z}\right)^2\sum_{i \in N_{x z}}\frac{1}{2\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)}\right]
+\end{aligned}
+$$
+where 
+$$
+\begin{aligned}
+n_{xz}^k &=  \sum_{i \in N_{x z}^k}\mathbb{1}_{i \in N_{x z}^k} \\
+\bar{y}_{xz}^k &= \frac{1}{n_{xz}^k} \sum_{i \in N_{x z}^k} y_{k,i}^{xz} 
+\end{aligned}
+$$
+
+Let 
+$$
+\sum_{i \in N_{x z}^k} \frac{1}{\left(s_{k,i}^{x z}+\tau_k^{x z^2}\right)}=\frac{n_{xz}^k}{ \sigma_k^{x z^2}}
+$$
+
+Then 
+$$
+\begin{aligned}
+L\left(\tau_k^{x z^2}, u_k^{x z}\right) &=\left[\prod_{i \in N_{x z}^k} \frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x z^2}}}\right] \exp \left[\sum_{i \in N_{N k}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{x z^2}\right)}\right]\exp\left[-\frac{n_{xz}^k }{2\sigma_k^{xz^2}}\left(\bar{y}_{xz}^k - \mu_k^{xz} \right)^2\right] \\
+L\left(\tau_k^{x z^2}\right) &=\int_{-\infty}^{\infty} L\left(\tau_k^{x z^z}, \mu_k^{x z}\right) d \mu_k^{x z} \\
+&=\left[\prod_{i \in N_{x z}^k} \frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x z^2}}}\right] \exp \left[\sum_{i \in N_{N k}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{x z^2}\right)}\right]\sqrt{\frac{2 \pi \sigma_k^{xz^2}}{n_{xz}^k }}\int_{-\infty}^{\infty} \sqrt{\frac{n_{xz}^k }{2 \pi \sigma_k^{xz^2}}}\exp\left[-\frac{n_{xz}^k }{2\sigma_k^{xz^2}}\left(\mu_k^{xz} - \bar{y}_{xz}^k \right)^2\right]d \mu_k^{x z} \\
+&=\left[\prod_{i \in N_{x z}^k} \frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x z^2}}}\right] \exp \left[\sum_{i \in N_{N k}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{x z^2}\right)}\right]\sqrt{\frac{2 \pi \sigma_k^{xz^2}}{n_{xz}^k }}
+\end{aligned}
+$$
+Thus, in metropolis-Hasting algorithm, we can choose the proposal distribution as 
+$$
+q(\tau_k^{XZ^2}) = \left[\prod_{i \in N_{x z}^k} \frac{1}{\sqrt{s_{k, i}^{x z^2}+\tau_k^{x z^2}}}\right] \exp \left[\sum_{i \in N_{N k}^k}-\frac{\left(y_{k, i}^{x z}-\bar{y}_k^{x z}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{x z^2}\right)}\right]\sqrt{\frac{2 \pi \sigma_k^{xz^2}}{n_{xz}^k }}
+$$
+
+$$
+\begin{aligned}
+q(\mu_k^{XZ} |\tau_k^{XZ^2}) &= \frac{L\left(\tau_k^{x z^2}, u_k^{x z}\right) }{q(\tau_k^{XZ^2}) } \\
+&= \sqrt{\frac{n_{xz}^k }{2 \pi \sigma_k^{xz^2}}}\exp\left[-\frac{n_{xz}^k}{2\sigma_k^{xz^2}}\left(\bar{y}_{xz}^k - \mu_k^{xz} \right)^2\right] 
+\end{aligned}
+$$
+
+
+
+
+
+
+Algorithm 1: Adjusted Metropolis-Hasting algorithm
+
+Input: $\hat{\eta}_c$, $H\left(\eta\right)_c$, $J\left(\hat{\eta}_c\right)$, a proposal distribution $q$ and adjusted composite likelihood $L_{adj}$
+
+Output: A realization of length $N+1$ from a Markov Chain
+
+| for $t$ from 1 to N
+|     for $k \in \{0,1\}$
+|         for $xz \in \{AB, AC, BC\}$
+|               sample $\tau_k^{xz(p)} \sim  q(\tau_k^{xz})$ 
+|               sample $\mu_k^{XZ(p)} \sim N(\bar{y}_{XZ}^k, \left(\sigma_k^{XZ}\right)^2)$ where $\left(\sigma_k^{XZ}\right)^2 = \frac{n_{xz}^k }{\sum_{i \in N_{x z}^k} \frac{1}{\left(s_{k,i}^{x z}+\tau_k^{x z^2}\right)}}$ and $\bar{y}_{xz}^k = \frac{1}{n_{xz}^k} \sum_{i \in N_{x z}^k} y_{k,i}^{xz}$
+|     $\eta^{(p)} = \left(\tau^{(p)}, \mu^{(p)}\right)$ 
+|     $adj\left(\eta^{(t)},\eta^{(p)} \right)= \min \left\{1, \frac{L_{adj}\left(\eta^{(p)};y\right)\pi\left(\eta^{(p)}\right)\prod_k\prod_{xz}q\left(\tau_k^{xz(t)}\right)}{L_{adj}\left(\eta^{(t)};y\right)\pi\left(\eta^{(t)}\right)\prod_k\prod_{xz}q\left(\tau_k^{xz(p)}\right)} \right\}$  
+|     $U \sim U(0,1)$
+|     if $adj\left(\eta^{(t)},\eta^{(p)} \right) \leq U$ then
+|         $\eta^{t+1} = \eta^{(p)}$
+|     else
+|         $\eta^{t+1} = \eta^{(t)}$
+| return $\left\{\eta^{(t)}\right\}$ for $t=1,\dots, N+1$
+
+
