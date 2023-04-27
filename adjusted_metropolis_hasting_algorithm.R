@@ -1,23 +1,13 @@
-sampling_mu_and_tau <- function(dataout, prev_tau=NULL, narm = 3){
+sampling_mu_and_tau <- function(dataout, prev_tau, narm = 3){
   proposed_mu = NULL
   proposed_tau = NULL
 
 
-  if(is.null(prev_tau)){
-      temp_prev_tau = c(0.2,0.3,0.5,0.3,0.1,0.4)
-  } else {
-      temp_prev_tau = prev_tau
-  }
-
-  
   for(k in 1:2){
-    w = numeric(3)
-    yw = numeric(3)
     tau_result = numeric(3)
-
+    mu_result =numeric(3)
     for(t1 in 1:(narm-1)){
       for(t2 in (t1+1):narm){
-        
         temp_data = subset(dataout, dataout$t1 == t1 & dataout$t2 == t2)
         if(k == 1){
           observed_effects  = temp_data$outcome1
@@ -37,33 +27,22 @@ sampling_mu_and_tau <- function(dataout, prev_tau=NULL, narm = 3){
           tau_index = 2 # CA
         }
  
-        between_study_variance = temp_prev_tau[(k-1)*3 + tau_index]
-        
+        between_study_variance = prev_tau[(k-1)*3 + tau_index]
 
-        if(is.null(temp_prev_tau)){
-            tau_result = temp_prev_tau
-          } else {
-          if(tau_result[tau_index] == 0){
-            tau_result[tau_index] = sampling_from_proposed_distribution(between_study_variance, 
+        n = length(within_study_variance )
+
+        if(tau_result[tau_index] == 0){
+          tau_result[tau_index] = sampling_from_proposed_distribution(between_study_variance, 
                                                                       within_study_variance, 
-                                                                      observed_effects)         
-            } 
-          }
- 
-
-       
-        w[tau_index] = sum((within_study_variance + tau_result[tau_index])^(-1))
-        yw[tau_index] = sum(observed_effects/((within_study_variance + tau_result[tau_index])^(-1)))
-        
+                                                                      observed_effects)
+          temp_variance = 1/sum(1/(within_study_variance + tau_result[tau_index]))         
+          mu_result[tau_index] = rnorm(1, mean(observed_effects), sqrt(temp_variance))
+          } 
       }
       
     }
-    
-    H = matrix(c(w[1]+w[3], -w[3], -w[3], w[2]+w[3]), nrow = 2)
-    v = matrix(c(yw[1]-yw[3],yw[2]-yw[3]), nrow = 2)
-    mu_k = solve(H, v) 
-    mu_k = c(mu_k, mu_k[2] - mu_k[1])
-    proposed_mu = c(proposed_mu, mu_k)
+
+    proposed_mu = c(proposed_mu, mu_result)
     proposed_tau = c(proposed_tau, tau_result)
     
   }
@@ -80,9 +59,8 @@ adjusted_metropolis_hasting_algorithm <- function(dataout, chain_length,
   
   for(t in 1:chain_length){
     if(t == 1){
-      proposed_result = sampling_mu_and_tau(dataout)
-      previous_mu = proposed_result[[1]]
-      previous_tau = proposed_result[[2]]
+      previous_mu = c(0.4,0.8,-0.4,0.1,-0.5,0.6)
+      previous_tau = c(0.2,0.3,0.5,0.3,0.1,0.4)
       simulation_mu[t,] = previous_mu
       simulation_tau[t,] = previous_tau
 
@@ -98,12 +76,12 @@ adjusted_metropolis_hasting_algorithm <- function(dataout, chain_length,
       
 
       # calcuate a
-      likelihood_ratio  = log_composite_likelihood(dataout, proposed_tau, proposed_mu) /
-        log_composite_likelihood(dataout, previous_tau, previous_mu)
+      likelihood_ratio = exp(log_composite_likelihood(dataout, proposed_tau, proposed_mu))/ 
+                         exp(log_composite_likelihood(dataout, previous_tau, previous_mu))
       proposed_dist_ratio = product_propose_distribution(dataout, previous_tau, previous_mu) /
-        product_propose_distribution(dataout, proposed_tau, proposed_mu)
-      prior_dist_ratio = product_prior_distribution(dataout, proposed_tau) /
-        product_prior_distribution(dataout, previous_tau)
+                            product_propose_distribution(dataout, proposed_tau, proposed_mu)
+      prior_dist_ratio = product_prior_distribution(dataout, proposed_tau, proposed_mu) /
+                         product_prior_distribution(dataout, previous_tau,previous_mu)
       
       a_mh_algo = likelihood_ratio * proposed_dist_ratio * prior_dist_ratio  
  

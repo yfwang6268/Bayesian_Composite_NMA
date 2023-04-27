@@ -56,10 +56,11 @@ save(posterior_mu, posterior_tau,simulated_data,file = filename)
 
 
 true_mu = c(0.5,1,-0.5, 0,-0.5,0.5)
-bias = numeric(number_of_simulation)
+#number_of_simulation = 409
+bias = numeric(6)
 for(i in 1:number_of_simulation){
   temp_mu = posterior_mu[[i]]
-  bias =bias +  abs(true_tau -  colMeans(temp_mu))
+  bias =bias +  abs(true_mu -  colMeans(temp_mu))
 }
 print(round(bias/number_of_simulation,3))
   

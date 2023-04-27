@@ -1,0 +1,8 @@
+409 interations; conditional normal dist for mu; 500 burn-in for sampling tau
+
+mu bias
+
+> print(round(bias/number_of_simulation,3))
+[1] 0.215 0.634 0.856 0.184 0.468 0.539
+
+note: around 1.6 min per simulation

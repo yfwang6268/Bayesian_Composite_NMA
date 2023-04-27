@@ -37,5 +37,5 @@ log_composite_likelihood <- function(dataout, tau, mu ,narm = 3){
       }
     }
   }
-  return(log_likelihood)
+  return(log_likelihood*(-1/2))
 }
