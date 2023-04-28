@@ -1,9 +1,9 @@
 ---
-title: "Adjusted Gibbs Sampling Algorithm"
+title: "Gibbs Sampling Algorithm Derivation"
 output: html_notebook
 ---
 
-Given $XZ, k$
+Given $XZ, k$, the log likelike hood and the composite likelihood are
 
 $$
 \begin{aligned}
@@ -28,7 +28,8 @@ $$
 \sum_{i \in N_{XZ}^k} \frac{1}{\left(s_{k,i}^{XZ}+\tau_k^{XZ^2}\right)}=\frac{n_{xz}^k}{ \sigma_k^{XZ^2}}
 $$
 
-Then 
+Then the composite likelihood and marginal likelihood can also
+
 $$
 \begin{aligned}
 L\left(\tau_k^{XZ^2}, \mu^{XZ}\right) &=\left[\prod_{i \in N_{XZ}^k} \frac{1}{\sqrt{s_{k, i}^{XZ^2}+\tau_k^{XZ^2}}}\right] \exp \left[\sum_{i \in N_{N k}^k}-\frac{\left(y_{k, i}^{XZ}-\bar{y}_k^{XZ}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{XZ^2}\right)}\right]\exp\left[-\frac{n_{xz}^k }{2\sigma_k^{xz^2}}\left(\bar{y}_{xz}^k - \mu_k^{xz} \right)^2\right] \\
@@ -47,15 +48,22 @@ $$
 p(\mu_k^{XZ} |\tau_k^{XZ^2} , y) &=\frac{P\left(\mu_k^{XZ}, \tau_k^{XZ^2}, y\right)}{P\left(\tau_k^{XZ^2}, y\right)} \\
 & =\frac{p\left(y \mid \tau_k^{XZ^2}, \mu_k^{XZ}\right) \cdot P\left(\tau_k^{XZ^2},\mu_k^{XZ}\right)}{p\left(\tau_k^{XZ^2}, y\right)} \\
 & =\frac{P\left(y \mid \tau_k^{XZ^2}, \mu_k^{XZ}\right) P\left(\tau_k^{XZ^2}, \mu_k^{XZ}\right)}{P\left(y \mid \tau_k^{XZ^2}\right) P\left(\tau_k^{XZ^2}\right)} \\
-& =\frac{L\left(\tau_k^{XZ^2}, \mu_k^{XZ}\right)}{L\left(\tau_k^{XZ^2}\right)} \text{ Given } P\left(\tau_k^{XZ^2},\mu_k^{XZ}\right) \propto\left(\tau_k^{XZ^2}\right)^{-1} \\
+&\propto \frac{L\left(\tau_k^{XZ^2}, \mu_k^{XZ}\right)}{L\left(\tau_k^{XZ^2}\right)} \\
 &= \sqrt{\frac{n_{XZ}^k }{2 \pi \sigma_k^{xz^2}}}\exp\left[-\frac{n_{xz}^k}{2\sigma_k^{xz^2}}\left(\bar{y}_{XZ}^k - \mu_k^{XZ} \right)^2\right] 
 \end{aligned}
 $$
 
+where 
+
+$$
+\begin{aligned}
+P\left(\tau_k^{XZ^2},\mu_k^{XZ}\right) &\propto\left(\tau_k^{XZ^2}\right)^{-1} \\
+\frac{P\left(\tau_k^{XZ^2},\mu_k^{XZ}\right)}{P\left(\tau_k^{XZ^2}\right)} &\propto 1
+\end{aligned}
+$$
 
 
-
-Algorithm: Adjusted Gibbs Sampling algorithm
+Algorithm: Gibbs Sampling algorithm
 
 Input: $\hat{\eta}_c$, $H\left(\eta\right)_c$, $J\left(\hat{\eta}_c\right)$, a proposal distribution $q$ and adjusted composite likelihood $L_{adj}$
 
@@ -63,7 +71,7 @@ Output: A realization of length $N+1$ from a Markov Chain
 
 | for $t$ from 1 to N
 |     for $k \in \{0,1\}$
-|         for $xz \in \{AB, AC, BC\}$
+|         for $XZ \in \{AB, AC, BC\}$
 |               sample $\tau_k^{XZ(p)} \sim  p(\tau_k^{XZ^2}|y)$
 |               sample $\mu_k^{XZ(p)} \sim N(\bar{y}_{XZ}^k, \left(\sigma_k^{XZ}\right)^2)$ where $\left(\sigma_k^{XZ}\right)^2 = \frac{n_{xz}^k }{\sum_{i \in N_{XZ}^k} \frac{1}{\left(s_{k,i}^{XZ}+\tau_k^{XZ^2}\right)}}$ and $\bar{y}_{xz}^k = \frac{1}{n_{xz}^k} \sum_{i \in N_{XZ}^k} y_{k,i}^{xz}$
 |     $\eta^{(t)} = \left(\tau^{(p)}, \mu^{(p)}\right)$
