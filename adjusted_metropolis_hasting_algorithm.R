@@ -70,31 +70,11 @@ adjusted_metropolis_hasting_algorithm <- function(dataout, chain_length,
       
       proposed_result = sampling_mu_and_tau(dataout, previous_tau)
       
-      proposed_mu = proposed_result[[1]]
-      proposed_tau = proposed_result[[2]]
+      simulation_mu[t,] = proposed_result[[1]]
+      simulation_tau[t,] = proposed_result[[2]]
 
-      
-
-      # calcuate a
-      likelihood_ratio = exp(log_composite_likelihood(dataout, proposed_tau, proposed_mu))/ 
-                         exp(log_composite_likelihood(dataout, previous_tau, previous_mu))
-      proposed_dist_ratio = product_propose_distribution(dataout, previous_tau, previous_mu) /
-                            product_propose_distribution(dataout, proposed_tau, proposed_mu)
-      prior_dist_ratio = product_prior_distribution(dataout, proposed_tau, proposed_mu) /
-                         product_prior_distribution(dataout, previous_tau,previous_mu)
-      
-      a_mh_algo = likelihood_ratio * proposed_dist_ratio * prior_dist_ratio  
- 
-      # accpet/reject
-      if(runif(1) <= min(a_mh_algo, 1)){
-        simulation_mu[t,] = proposed_mu 
-        simulation_tau[t,] = proposed_tau
-        previous_mu = proposed_mu
-        previous_tau = proposed_tau
-      } else {
-        simulation_mu[t,] = previous_mu
-        simulation_tau[t,] = previous_tau
-      }
+      previous_mu = proposed_result[[1]]
+      previous_tau = proposed_result[[2]]
     }
   }
   

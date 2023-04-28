@@ -6,7 +6,7 @@ pdf_proposed_distribution <- function(between_study_variance, within_study_varia
   n = length(observed_effects)
   part2 = exp(-sum((observed_effects - ybar)^2/(2*(within_study_variance+between_study_variance))))
   part3 = sqrt(1/sum(1/(within_study_variance+between_study_variance))*2*pi)
-  return(part1*part2*part3)
+  return(part1*part2*part3*(between_study_variance)^(-1))
 }
 
 
