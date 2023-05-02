@@ -14,7 +14,7 @@ sampling_mu_and_tau <- function(dataout, prev_tau, narm = 3){
           within_study_variance = temp_data$sd1^2
         } else {
           observed_effects = temp_data$outcome2
-          within_study_variance = temp_data$sd2^2
+          within_study_variancence = temp_data$sd2^2
         }
         
         if(t1 == 1){
@@ -60,7 +60,7 @@ adjusted_metropolis_hasting_algorithm <- function(dataout, chain_length,
   for(t in 1:chain_length){
     if(t == 1){
       previous_mu = c(0.4,0.8,-0.4,0.1,-0.5,0.6)
-      previous_tau = c(0.2,0.3,0.5,0.3,0.1,0.4)
+      previous_tau = c(0.2,0.3,0.451,0.3,0.1,0.365)
       simulation_mu[t,] = previous_mu
       simulation_tau[t,] = previous_tau
 

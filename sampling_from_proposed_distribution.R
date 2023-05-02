@@ -14,11 +14,16 @@ pdf_proposed_distribution <- function(between_study_variance, within_study_varia
 sampling_from_proposed_distribution <- function(between_study_variance, within_study_variance, observed_effects){
   n = length(observed_effects)
   previous_value = between_study_variance
-  for(t in 1:500){
-      proposed_value = rinvgamma(1, 1)
+
+  for(t in 1:1000){
+      #proposed_value = rinvgamma(1, 1)
+      phi = runif(1)
+      proposed_value = exp(phi)
       if(t > 1){
-        numerator = pdf_proposed_distribution(proposed_value, within_study_variance, observed_effects)*dinvgamma(previous_value, 1)
-        denominator = pdf_proposed_distribution(previous_value , within_study_variance, observed_effects)*dinvgamma(proposed_value, 1)
+        #numerator = pdf_proposed_distribution(proposed_value, within_study_variance, observed_effects)*dinvgamma(previous_value, 1)
+        numerator = pdf_proposed_distribution(proposed_value, within_study_variance, observed_effects)
+        #denominator = pdf_proposed_distribution(previous_value , within_study_variance, observed_effects)*dinvgamma(proposed_value, 1)
+        denominator = pdf_proposed_distribution(previous_value , within_study_variance, observed_effects)
         a_proposed_distribution = numerator/denominator
         if(runif(1) <= min(a_proposed_distribution, 1)){
           previous_value = proposed_value
