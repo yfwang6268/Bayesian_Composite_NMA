@@ -360,11 +360,11 @@ display: none;
 </div>
 
 
-<p>Given <span class="math inline">\(XZ, k\)</span>, the log likelike
-hood and the composite likelihood are</p>
+<p>Given <span class="math inline">\(XZ, k\)</span>, the log likelihood
+and the composite likelihood are</p>
 <p><span class="math display">\[
 \begin{aligned}
-\ell\left(\tau_k^{XZ^2},\mu_k^x\right) &amp;=-\frac{1}{2} \sum_{i \in
+\ell\left(\tau_k^{XZ^2},\mu_k^{XZ}\right) &amp;=-\frac{1}{2} \sum_{i \in
 N_{XZ}^k}\left[\log \left(s_{k,
 i}^{XZ^2}+\tau_k^{XZ^2}\right)+\frac{\left(y_{k,
 i}^{XZ}-\mu_k^{XZ}\right)^2}{s_{k, i}^{XZ^2}+\tau_k^{XZ^2}}\right] \\
@@ -400,8 +400,8 @@ i}^{XZ}-\bar{y}_k^{XZ}\right)^2}{2\left(s_{k,i}^{XZ}+\tau_k^{XZ^2}\right)}\right
 \end{aligned}
 \]</span> where <span class="math display">\[
 \begin{aligned}
-n_{xz}^k &amp;=  \sum_{i \in N_{XZ}^k}\mathbb{1}_{i \in N_{XZ}^k} \\
-\bar{y}_{xz}^k &amp;= \frac{1}{n_{xz}^k} \sum_{i \in N_{XZ}^k}
+n_k^{xz} &amp;=  \sum_{i \in N_{XZ}^k}\mathbb{1}_{i \in N_{XZ}^k} \\
+\bar{y}_k^{xz} &amp;= \frac{1}{n_{xz}^k} \sum_{i \in N_{XZ}^k}
 y_{k,i}^{xz}
 \end{aligned}
 \]</span></p>
@@ -436,8 +436,7 @@ i}^{XZ}-\bar{y}_k^{XZ}\right)^2}{2\left(s_{k,i}^{xz^2}+\tau_k^{XZ^2}\right)}\rig
 \end{aligned}
 \]</span> Thus,by choosing <span class="math inline">\(P\left(\tau_k^{XZ^2}, \mu^{XZ}\right) \propto
 \left(\tau_k^{XZ^2}\right)^{-1}\)</span>, the posterior distribution of
-<span class="math inline">\(\tau_k^{XZ^2}\)</span> is proportional to
-<span class="math display">\[
+<span class="math inline">\(\tau_k^{XZ^2}\)</span> follows <span class="math display">\[
 p(\tau_k^{XZ^2}|y) \propto \left(\tau_k^{XZ^2}\right)^{-1}
 \left[\prod_{i \in N_{XZ}^k} \frac{1}{\sqrt{s_{k,
 i}^{XZ^2}+\tau_k^{XZ^2}}}\right] \exp \left[\sum_{i \in N_{N
@@ -471,11 +470,31 @@ P\left(\tau_k^{XZ^2},\mu_k^{XZ}\right)
 &amp;\propto 1
 \end{aligned}
 \]</span></p>
-<p>Algorithm: Gibbs Sampling algorithm</p>
-<p>Input: <span class="math inline">\(\hat{\eta}_c\)</span>, <span class="math inline">\(H\left(\eta\right)_c\)</span>, <span class="math inline">\(J\left(\hat{\eta}_c\right)\)</span>, a proposal
-distribution <span class="math inline">\(q\)</span> and adjusted
-composite likelihood <span class="math inline">\(L_{adj}\)</span></p>
-<p>Output: A realization of length <span class="math inline">\(N+1\)</span> from a Markov Chain</p>
+<p>We use Metropolis-Hasting algorithm to sample <span class="math inline">\(\tau_k^{XZ}\)</span> from <span class="math inline">\(p(\tau_k^{XZ^2}|y)\)</span>.</p>
+<p>Input: data y</p>
+<p>Output: A realization of length <span class="math inline">\(N\)</span> from a Markov Chain for <span class="math inline">\(\tau_k^{XZ}\)</span> from <span class="math inline">\(p(\tau_k^{XZ^2}|y)\)</span></p>
+<p>Propose <span class="math inline">\(q\left(\tau_{k,t}^{XZ^2} |
+\tau_{k,t-1}^{XZ^2} \right) = N(\tau_{k,t-1}^{XZ^2}, 0.1)\)</span></p>
+<div class="line-block"><span class="math inline">\(\tau_{k,0}^{XZ^2} =
+0.3\)</span><br />
+for <span class="math inline">\(t\)</span> from <span class="math inline">\(1\)</span> to <span class="math inline">\(N\)</span>:<br />
+    sample <span class="math inline">\(\tau_{k,*}^{XZ^2} \sim
+N(\tau_{k,t-1}^{XZ^2}, 0.1)\)</span><br />
+    <span class="math inline">\(a=\frac{P\left(\tau_{k,*}^{XZ^2} | y
+\right)/q\left(\tau_{k,*}^{XZ^2} |
+\tau_{k,t-1}^{XZ^2}\right)}{P\left(\tau_{k,t-1}^{XZ^2}\right)/q\left(\tau_{k,t-1}^{XZ^2}
+| \tau_{k,*}^{XZ^2},\right)}\)</span><br />
+    if <span class="math inline">\(runif(1) &lt;
+min(a,1)\)</span>:<br />
+        <span class="math inline">\(\tau_{k,t}^{XZ^2} =
+\tau_{k,*}^{XZ^2}\)</span><br />
+    else:<br />
+        <span class="math inline">\(\tau_{k,t}^{XZ^2} =
+\tau_{k,t-1}^{XZ^2}\)</span></div>
+<p>We use Gibbs Sampler to sample <span class="math inline">\(\mu_k^{XZ}\)</span> and <span class="math inline">\(\tau_k^{XZ^2}\)</span> from the posterior
+distribution</p>
+<p>Input: data y</p>
+<p>Output: A realization of length <span class="math inline">\(N\)</span> from a Markov Chain for <span class="math inline">\(\left(\tau_k^{XZ}, \mu_k^{XZ}\right)\)</span></p>
 <div class="line-block">for <span class="math inline">\(k \in
 \{1,2\}\)</span><br />
     for <span class="math inline">\(t\)</span> from 1 to N<br />
