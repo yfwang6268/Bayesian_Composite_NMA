@@ -42,8 +42,9 @@ mh_algorithm <- function(observed_effects, within_study_variance, k, mc_length,t
 }
 
   sample_mu <- function(tau2, observed_effects, within_study_variance){
+    n = length(observed_effects)
     mu_variance = 1/(sum(1/(within_study_variance + tau2)))
-    return(rnorm(1, mean(observed_effects), sqrt(mu_variance)))
+    return(rnorm(1, mean(observed_effects), sqrt(mu_variance/n)))
   }
 
 
@@ -81,15 +82,12 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t1,
   
   
   Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, narm = 3){
-    simulation_mu = matrix(nrow = chain_length, ncol = 6)
+    simulation_mu = matrix(nrow = 1, ncol = 6)
     simulation_tau = simulation_mu
     for(k in 1:2){
-      k_start = Sys.time()
-      for (t in 1:chain_length){
-        t_start = Sys.time()
         for(t1 in 1:(narm-1)){
           for(t2 in (t1+1):narm){
-            t1t2_start <- Sys.time()
+            start_time <- Sys.time()
             if(t1 == 1){
               if(t2 == 3){
                 tau_index = 1 # BA
@@ -102,17 +100,16 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t1,
             
             if (tau_index != 3){
               sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3)
-              simulation_mu[t, (k-1)*3+tau_index] = mean(sim_result[[1]])
-              simulation_tau[t, (k-1)*3+tau_index] = mean(sim_result[[2]])
-              print(paste("Treatment ", t1, " and ", t2, " costs ", round(Sys.time() - t1t2_start, 4), " seconds"))
+              simulation_mu[1, (k-1)*3+tau_index] = mean(sim_result[[1]])
+              simulation_tau[1, (k-1)*3+tau_index] = mean(sim_result[[2]])
+              
             }
+           
           }
-        }
-        print(paste("MCMC at step ", t, " costs ", round(Sys.time() - t_start, 4), " seconds"))
-      }
-      print(paste(k, "th outcome costs", round(Sys.time() - k_start, 4)))
-    }
 
+        }   
+   
+    }
    return(list(simulation_mu, simulation_tau))
   }
   

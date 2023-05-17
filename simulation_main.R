@@ -1,10 +1,21 @@
 print(utils::getSrcDirectory(function(){}))
 setwd(getSrcDirectory(function(){})[1])
 #source("adjusted_metropolis_hasting_algorithm.R")
-source("mcmc2.R")
+source("recurisive_mcmc.R")
 #source("log_composite_likelihood.R")
 source("sampling_from_proposed_distribution.R")
 source("data_simulation.R")
+source("CLNMA_functions.R")
+library(parallel)
+library(MASS)
+n.cores <- parallel::detectCores() - 1
+my.cluster <- parallel::makeCluster(
+  n.cores, 
+  type = "PSOCK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+foreach::getDoParRegistered()
+
 set.seed(1)
 
 mu1 = c(0.5,1)
@@ -32,7 +43,7 @@ nab = nac=nbc=nabc=5
 
 
 
-chain_length <- 1000
+chain_length <- 5000
 
 burn_in_rate <- 0.5
 
@@ -42,27 +53,34 @@ posterior_mu <- list()
 posterior_tau <- list()
 simulated_data <- list()
 
-for(t in 1:number_of_simulation){
-  start <- Sys.time()
-  temp_simulated_data <- simulate_dataset(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
-  temp_posterior <- Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
-  simulated_data = append(simulated_data, temp_simulated_data)
-  posterior_mu = append(posterior_mu, temp_posterior[1])
-  posterior_tau = append(posterior_tau, temp_posterior[2])    
-  print(paste("Simulation ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
+# for(t in 1:number_of_simulation){
+#   start <- Sys.time()
+#   temp_simulated_data <- gendata(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
+#   temp_posterior <- Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
+#  # simulated_data = append(simulated_data, temp_simulated_data)
+#   posterior_mu = append(posterior_mu, temp_posterior[1])
+#   posterior_tau = append(posterior_tau, temp_posterior[2])    
+#   print(paste("Simulation ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
+# }
+
+simulation_result <- foreach(
+  t = 1:number_of_simulation,
+  .combine = 'c'
+) %dopar% {
+  temp_simulated_data <- gendata(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
+  Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
 }
+stopCluster(cl = my.cluster)
+filename <- paste("simulation_result_", Sys.Date(),".RData", sep="")
+save(simulation_result,file = filename)
+simulation_result = matrix(simulation_result, ncol = 12, byrow = T)
+save(simulation_result,file = filename)
 
-filename <- paste("simulation_result_number_of_simulations_date_", number_of_simulation,"_", Sys.Date(),".RData", sep="")
-save(posterior_mu, posterior_tau,simulated_data,file = filename)
-
-
+temp_mu = simulation_result[,1:6]
 true_mu = c(0.5,1,-0.5, 0,-0.5,0.5)
 #number_of_simulation = 409
 bias = numeric(6)
-for(i in 1:number_of_simulation){
-  temp_mu = posterior_mu[[i]]
-  bias =bias +  abs(true_mu -  colMeans(temp_mu))
-}
-print(round(bias/number_of_simulation,3))
+bias =  abs(true_mu -  colMeans(temp_mu))
+print(round(bias,3))
   
 
