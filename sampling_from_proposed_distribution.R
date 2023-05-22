@@ -11,7 +11,7 @@ pdf_proposed_distribution <- function(between_study_variance, within_study_varia
 
 
 
-sampling_from_proposed_distribution <- function(within_study_variance, observed_effects, simu_length=500){
+sampling_from_proposed_distribution <- function(within_study_variance, observed_effects, simu_length=1000){
   n = length(observed_effects)
   simulated_value = numeric(simu_length + 1)
   count = 0
@@ -35,8 +35,8 @@ sampling_from_proposed_distribution <- function(within_study_variance, observed_
       }
   
   } 
-
-  return(simulated_value[simu_length + 1])
+  start_index = floor(simu_length * 0.5) + 1
+  return(mean(simulated_value[start_index:(simu_length + 1)]))
 }
 
 product_propose_distribution <- function(dataout, tau, mu, k, narm = 3){
@@ -44,7 +44,7 @@ product_propose_distribution <- function(dataout, tau, mu, k, narm = 3){
 
     temp_tau = tau
     temp_mu = mu
-    
+
     for(t1 in 1:(narm-1)){
       for(t2 in (t1+1):narm){
         temp_data = subset(dataout, dataout$t1 == t1 & dataout$t2 == t2)

@@ -40,6 +40,11 @@ dataout = gendata(nab,nac,nbc,nabc,mu1,mu2,betweenv,rho_w,ss1,ss2)
 
 ```
 
+```{r}
+head(dataout)
+```
+
+
 Prepare the dataset for gemtc
 
 $$
@@ -63,10 +68,6 @@ calculate_reference_std <- function(dataset){
   colnames(result) = c("ID", "sd") 
   return(result)
 }
-
-
-
-
 prepare_dataset_for_gemtc <- function(dataset){
   colnames(dataset)[4:5] = c("outcome","sd")
   reference_sd = calculate_reference_std(dataset)
@@ -191,5 +192,14 @@ forest(relative.effect(mcmc1, t1 = 3))
 
 ```{r}
 forest(relative.effect(mcmc2, t1 = 3))
+```
+
+```{r}
+temp_result = relative.effect(mcmc2, t1=3)
+temp_samplers = NULL
+for(i in 1:4){
+  temp_samplers = rbind(temp_samplers, temp_result$samples[[i]])
+}
+colMeans(temp_samplers)
 ```
 

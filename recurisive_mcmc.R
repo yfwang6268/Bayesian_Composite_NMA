@@ -48,9 +48,9 @@ mh_algorithm <- function(observed_effects, within_study_variance, k, mc_length,t
   }
 
 
-Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3){
+Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1, t_2 ,narm = 3){
 
-  temp_data = subset(dataout, dataout$t1 == t1 & dataout$t2 == t2)
+  temp_data = subset(dataout, t1 == t_1 & t2 == t_2)
   if(k == 1){
     observed_effects  = temp_data$outcome1
     within_study_variance = temp_data$sd1^2
@@ -110,7 +110,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t1,
         }   
    
     }
-   return(list(simulation_mu, simulation_tau))
+   return(c(simulation_mu, simulation_tau))
   }
   
   

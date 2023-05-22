@@ -62,8 +62,8 @@ m.netmeta1<- netmeta(TE = TE,
                      studlab = author,
                      data = dataout1,
                      sm = "SMD",
-                     fixed = TRUE,
-                     random = FALSE,
+                     fixed = FALSE,
+                     random = TRUE,
                      reference.group = 3,
                      details.chkmultiarm = TRUE,
                      sep.trts = " vs ")
@@ -84,8 +84,8 @@ m.netmeta2<- netmeta(TE = TE,
                      studlab = author,
                      data = dataout2,
                      sm = "SMD",
-                     fixed = TRUE,
-                     random = FALSE,
+                     fixed = FALSE,
+                     random = TRUE,
                      reference.group = 3,
                      details.chkmultiarm = TRUE,
                      sep.trts = " vs ")
@@ -95,5 +95,11 @@ summary(m.netmeta2)
 ```{r}
 forest(m.netmeta2, 
        reference.group = 3)
+```
+```{r}
+#estimated_mu1 = NULL
+temp_estimated_mu1 = m.netmeta1$TE.random[-nrow(m.netmeta1$TE.random),3]
+estimated_mu1 = rbind(estimated_mu1, temp_estimated_mu1)
+estimated_mu1 
 ```
 

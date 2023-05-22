@@ -8,13 +8,7 @@ source("data_simulation.R")
 source("CLNMA_functions.R")
 library(parallel)
 library(MASS)
-n.cores <- parallel::detectCores() - 1
-my.cluster <- parallel::makeCluster(
-  n.cores, 
-  type = "PSOCK"
-)
-doParallel::registerDoParallel(cl = my.cluster)
-foreach::getDoParRegistered()
+
 
 set.seed(1)
 
@@ -49,19 +43,31 @@ burn_in_rate <- 0.5
 
 number_of_simulation <- 500
 
-posterior_mu <- list()
-posterior_tau <- list()
-simulated_data <- list()
-
+# # Single Core Running 
+# 
+# posterior_mu <- NULL
+# posterior_tau <- NULL
+# simulated_data <- NULL
+# 
 # for(t in 1:number_of_simulation){
 #   start <- Sys.time()
 #   temp_simulated_data <- gendata(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
 #   temp_posterior <- Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
 #  # simulated_data = append(simulated_data, temp_simulated_data)
-#   posterior_mu = append(posterior_mu, temp_posterior[1])
-#   posterior_tau = append(posterior_tau, temp_posterior[2])    
+#   posterior_mu = rbind(posterior_mu, temp_posterior[1:6])
+#   posterior_tau = rbind(posterior_tau, temp_posterior[7:12])
 #   print(paste("Simulation ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
 # }
+
+# Pararun setting
+
+n.cores <- parallel::detectCores() - 1
+my.cluster <- parallel::makeCluster(
+  n.cores,
+  type = "PSOCK"
+)
+doParallel::registerDoParallel(cl = my.cluster)
+foreach::getDoParRegistered()
 
 simulation_result <- foreach(
   t = 1:number_of_simulation,
@@ -71,16 +77,27 @@ simulation_result <- foreach(
   Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
 }
 stopCluster(cl = my.cluster)
+simulation_result_matrix =  matrix(simulation_result, ncol = 12, byrow = T)
 filename <- paste("simulation_result_", Sys.Date(),".RData", sep="")
 save(simulation_result,file = filename)
-simulation_result = matrix(simulation_result, ncol = 12, byrow = T)
-save(simulation_result,file = filename)
 
-temp_mu = simulation_result[,1:6]
-true_mu = c(0.5,1,-0.5, 0,-0.5,0.5)
-#number_of_simulation = 409
-bias = numeric(6)
-bias =  abs(true_mu -  colMeans(temp_mu))
-print(round(bias,3))
-  
+# temp_mu = simulation_result[,1:6]
+# true_mu = c(0.5,1,-0.5, 0,-0.5,0.5)
+# number_of_simulation = 409
+# bias = numeric(6)
+# bias =  abs(true_mu -  colMeans(temp_mu))
+# print(round(bias,3))
 
+
+# simulation_mu=NULL
+# simulation_tau=NULL
+# for(i in 1:length(simulation_result)){
+#   if(i %% 2 == 1){
+#     simulation_mu = rbind(simulation_mu, simulation_result[[i]])
+#   } else {
+#     simulation_tau = rbind(simulation_tau, simulation_result[[i]])
+#   }
+#   
+# }
+# 
+# colMeans(simulation_mu)
