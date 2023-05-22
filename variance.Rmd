@@ -1,0 +1,63 @@
+---
+title: "Variance Estimates"
+author: "Yifei Wang"
+date: '2023-05-22'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#### Cooley2011: Marginal likelihood
+
+Composite Likelihood without adjustment
+
+$$
+\pi_c(\theta \mid y) \dot{\sim} \mathrm{N}\left\{\theta_0, n^{-1} H\left(\theta_0\right)^{-1}\right\}
+$$
+
+Composite likelihood with magnitude adjustment
+
+$$
+\pi_{\operatorname{magn}}(\theta \mid y) \dot{\sim} \mathrm{N}\left\{\theta_0,(n p)^{-1} \operatorname{tr}\left\{H\left(\theta_0\right)^{-1} J\left(\theta_0\right)\right\} H\left(\theta_0\right)^{-1}\right\}
+$$
+where p is the number of eigen vectors choosing from the product result of $H\left(\theta_0\right)^{-1} J\left(\theta_0\right)$
+
+Composite likelihood with curvature adjustment
+
+$$
+\pi_{\text {curv }}(\theta \mid y) \dot{\sim} \mathrm{N}\left\{\theta_0, n^{-1} H\left(\theta_0\right)^{-1} J\left(\theta_0\right) H\left(\theta_0\right)^{-1}\right\}
+$$
+
+where
+
+$$
+H\left(\theta_0\right)=-\mathbb{E}\left[\nabla^2 \ell_c\left(\theta_0 ; Y\right)\right] \text { and } J\left(\theta_0\right)=\operatorname{Var}\left[\nabla \ell_c\left(\theta_0 ; Y\right)\right]
+$$
+
+#### Lazar2003Biometrika: empirical likelihood
+
+No variance is estimated. Instead, the coverage probability and length (with standard errors) are calculated for the empirical likelihood CI in the simulation part.
+
+#### Pauli2011Stat: Pairwise Likelihood
+
+$$
+\begin{gathered}
+I_{c_0}^{-1}=I_0^{-1}+I_c\left(\hat{\theta}_{P L}\right)^{-1} \rightarrow I_c\left(\hat{\theta}_{P L}\right)^{-1} \\
+\hat{\theta}_{c_0}=I_{c_0}\left(I_0^{-1} \theta_0+I_c\left(\hat{\theta}_{P L}\right)^{-1} \hat{\theta}_{P L}\right) \rightarrow \hat{\theta}_{P L} \\
+\pi_{C L_c}(\theta \mid y) \dot{\sim} N\left(\hat{\theta}_{P L}, I_{c_0}^{-1}\right)
+\end{gathered}
+$$
+where $I(\theta)=E\left(-\nabla \ell_{p *}(\theta ; Y)\right)$
+
+#### Graziani2020PlosOne_BayesianMultivariateNMA
+
+$2.5\%$, median and $97.5\%$ are reported from the highest posterior density (HPD) credibility intervals
+
+#### Lu2006JASA_bayesian_NMA
+
+The paper provides the standard deviation in the application part without specifying the calculation details. The values could be calculated from the mcmc samples.
+
+
+
