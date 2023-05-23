@@ -1,4 +1,4 @@
-hessian_metrix <- function(observed_effects, between_study_variance, within_study_variance, estimated_effect){
+hessian_matrix <- function(observed_effects, between_study_variance, within_study_variance, estimated_effect){
   second_partial_log_likelihood_over_partial_tau2 = 0
   second_partial_log_likelihood_over_partial_mu = 0
   second_partial_log_likelihood_over_partial_mu_and_tau = 0
@@ -28,7 +28,7 @@ hessian_metrix <- function(observed_effects, between_study_variance, within_stud
 
 
 
-J_metrix <- function(observed_effects, between_study_variance, within_study_variance, estimated_effect){
+J_matrix <- function(observed_effects, between_study_variance, within_study_variance, estimated_effect){
   first_partial_log_likelihood_over_partial_tau2 = 0
   first_partial_log_likelihood_over_partial_mu = 0
   
