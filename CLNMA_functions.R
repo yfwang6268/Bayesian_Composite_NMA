@@ -223,7 +223,10 @@ CLNMA = function(dataout){
 
 #Generate data in simulation 
 generate.data = function(mu1,mu2,betweenv,rho_w,ss1,ss2){
+<<<<<<< Updated upstream
   #library(MASS)
+=======
+>>>>>>> Stashed changes
 s1 =abs(rnorm(2,ss1,0.1))
 s2 =abs(rnorm(2,ss2,0.1))
 s = c(s1,s2)^2
@@ -233,7 +236,11 @@ for(i in 1:3){
     withinv[i,j] = withinv[j,i]=rho_w[i,j]*sqrt(s[i]*s[j])
   }
 }
+<<<<<<< Updated upstream
 y = MASS::mvrnorm(1,c(mu1,mu2),withinv+betweenv)
+=======
+y = mvrnorm(1,c(mu1,mu2),withinv+betweenv)
+>>>>>>> Stashed changes
 return(c(y,s1,s2))
 }
 

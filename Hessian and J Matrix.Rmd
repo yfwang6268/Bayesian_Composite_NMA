@@ -1,5 +1,5 @@
 ---
-title: "Hessian Matrix and jacobian matrix"
+title: "Hessian Matrix and J matrix"
 output:
   pdf_document: default
   html_notebook: default
@@ -15,20 +15,30 @@ H_k=\left[\begin{array}{cc}
 $$
 The J matrix is
 $$
-J_R=\left[\begin{array}{cc}
-\operatorname{var}\left(\frac{\partial \ell}{\partial \mu_k^{x z}}\right) & \operatorname{cov}\left(\frac{\partial \ell}{\partial \mu_k^{x z}}, \frac{\partial \ell}{\partial \tau_k^{xz^2}}\right) \\
-\operatorname{cov}\left(\frac{\partial \ell}{\partial \mu_k^{x z}}, \frac{\partial \ell}{\partial \tau_k^{x z^2}}\right) & \operatorname{var}\left(\frac{\partial \ell}{\partial \tau_k^{xz^2}}\right)
+\begin{aligned}
+J_R&=
+\left[\begin{array}{l}
+\frac{\partial \ell}{\partial \mu_k^{x z}} \\
+\frac{\partial \ell}{\partial \tau_k^{x z^2}}
+\end{array}\right]\left[\begin{array}{ll}
+\frac{\partial l}{\partial \mu_k^{x z}} & \frac{\partial \ell}{\partial \tau_k^{x z^2}}
+\end{array}\right] \\
+&=\left[\begin{array}{cc}
+\frac{\partial \ell}{\partial \mu_k^{x z}} \cdot \frac{\partial \ell}{\partial \mu_k^{x z}} & \frac{\partial \ell}{\partial \mu_k^{xz}} \cdot \frac{\partial \ell}{\partial \tau_k^{xz^2}} \\
+\frac{\partial \ell}{\partial \mu_k^{xz}} \cdot \frac{\partial \ell}{\partial \tau_k^{xz^2}} & \frac{\partial \ell}{\partial \tau_k^{xz^2}} \cdot \frac{\partial \ell}{\partial \tau_k^{xz^2}}
 \end{array}\right]
+\end{aligned}
 $$
+
 where the $\operatorname{var}\left(\cdot\right)$ and $\operatorname{cov}\left(\cdot\right)$ are calculated based on the generated sample and the first and second derivatives are
 $$
 \begin{aligned}
 \ell\left(\tau_k^{XZ^2},\mu_k^{XZ}\right) &=-\frac{1}{2} \sum_{i \in N_{XZ}^k}\left[\log \left(s_{k, i}^{XZ^2}+\tau_k^{XZ^2}\right)+\frac{\left(y_{k, i}^{XZ}-\mu_k^{XZ}\right)^2}{s_{k, i}^{XZ^2}+\tau_k^{XZ^2}}\right] \\
 \frac{\partial \ell}{\partial \tau_k^{x z^2}} &=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\frac{1}{\tau_k^{x z^2}+s_{k, i}^{x z^2}}-\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)^2}{\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)^2}\right] \\
-\frac{\partial \ell}{\partial u_k^{x z}}&=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\frac{2\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{s_{k, i}^2+\tau_k^{x z^2}}(-1)\right]=\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\frac{2\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{s_{k, i}^{x z^2}+\tau_k^{x z^2}}\right] \\
+\frac{\partial \ell}{\partial \mu_k^{x z}}&=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\frac{2\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{s_{k, i}^2+\tau_k^{x z^2}}(-1)\right]=\sum_{i \in N_{x z}^k}\left[\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{s_{k, i}^{x z^2}+\tau_k^{x z^2}}\right] \\
 \frac{\partial^2 \ell}{\partial\left(\tau_k^{x z^2}\right)^2} &=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[-\frac{1}{\left(\tau_R^{x z^2}+s_{k_i}^{x z^2}\right)^2}+\frac{2\left(y_{k, i}^{x z}-\mu_k^{x z}\right)^2}{\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)^3}\right] \\
-\frac{\partial^2 \ell}{\partial\left(\mu_k^{x z}\right)^2} &=-\frac{1}{2} \sum_{i \in N_{x z}^k}\left[\frac{(-2)}{s_{k, i}^{x z^2}+\tau_R^{x z^2}}\right]=\sum_{i \in N_{x z}^k}\left[\frac{1}{s_{R, i}^{x z^2}+\tau_R^{x z^2}}\right] \\
-\frac{\partial^2 \ell}{\partial \mu_k^{x z} \partial \tau_k^{x z^2}} &=\sum_{i \in N_{x z}^k}\left[-\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)^2}\right]=-\sum_{i \in N_{x z}^R}\left[\frac{\left(y_{k_{1 i}}^{x z}-\mu_k^{x z}\right)}{\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)^2}\right] \\
+\frac{\partial^2 \ell}{\partial\left(\mu_k^{x z}\right)^2} &=\sum_{i \in N_{x z}^k}\left[\frac{-1}{s_{R, i}^{x z^2}+\tau_R^{x z^2}}\right] \\
+\frac{\partial^2 \ell}{\partial \mu_k^{x z} \partial \tau_k^{x z^2}} &=\sum_{i \in N_{x z}^k}\left[-\frac{\left(y_{k, i}^{x z}-\mu_k^{x z}\right)}{\left(s_{k, i}^{x z^2}+\tau_k^{x z^2}\right)^2}\right] \\
 \end{aligned}
 $$
 
