@@ -10,13 +10,8 @@ log_composite_likelihood <- function(observed_effects, within_study_variance, ta
 }
 
 
-mh_algorithm <- function(observed_effects, within_study_variance, k, mc_length,t1, t2, mu, burn_in_rate){
-
-  tau2 = numeric(mc_length)
-
+sample_tau2 <- function(observed_effects, within_study_variance, k, mc_length,t1, t2, mu, burn_in_rate, adjustment = NULL){
   prev_tau2 = 0.3
-
-
   for(t in 1:mc_length){
     between_study_variance = -1
     while(between_study_variance <= 0){
@@ -24,31 +19,62 @@ mh_algorithm <- function(observed_effects, within_study_variance, k, mc_length,t
     }
     
 #    between_study_variance = runif(1, prev_tau2 - 0.1, prev_tau2 + 0.1)
-
-    numerator = exp(log_composite_likelihood(observed_effects, within_study_variance, between_study_variance, mu))/between_study_variance/rnorm(between_study_variance, prev_tau2, 0.1)*(1-pnorm(0, prev_tau2, 0.1))
-    denominator = exp(log_composite_likelihood(observed_effects, within_study_variance, prev_tau2, mu))/prev_tau2/rnorm(prev_tau2, between_study_variance, 0.1)*(1-pnorm(0, between_study_variance, 0.1))
-
-    a_mh_algorithm = numerator / denominator
-    if(runif(1) <= min(a_mh_algorithm ,1)){
-      tau2[t] = between_study_variance
-      prev_tau2 = between_study_variance
-    } else {
-      tau2[t] = prev_tau2
+    
+    if(is.null(adjustment)){
+      numerator = exp(log_composite_likelihood(observed_effects, within_study_variance, between_study_variance, mu))/between_study_variance/dnorm(between_study_variance, prev_tau2, 0.1)*(1-pnorm(0, prev_tau2, 0.1))
+      denominator = exp(log_composite_likelihood(observed_effects, within_study_variance, prev_tau2, mu))/prev_tau2/dnorm(prev_tau2, between_study_variance, 0.1)*(1-pnorm(0, between_study_variance, 0.1))
+    } else if (adjustment == "magn"){
+      H_matrix = hessian_matrix(observed_effects, prev_tau2, within_study_variance, mu)
+      J_matrix = sandwich_J_matrix(observed_effects, prev_tau2, within_study_variance, mu)
+      #ev =  eigen(solve(H_matrix) %*% J_matrix)
+      Hinverse_times_J = solve(H_matrix) %*% J_matrix
+      #k_adjust = length(ev$values)/sum(ev$values)
+      k_adjust = dim(Hinverse_times_J)[2] / sum(diag(Hinverse_times_J))
+      numerator = exp(k_adjust * log_composite_likelihood(observed_effects, within_study_variance, between_study_variance, mu))/between_study_variance/dnorm(between_study_variance, prev_tau2, 0.1)*(1-pnorm(0,prev_tau2 , 0.1))
+      denominator = exp(k_adjust * log_composite_likelihood(observed_effects, within_study_variance, prev_tau2, mu))/prev_tau2/dnorm(prev_tau2, between_study_variance, 0.1)*(1-pnorm(between_study_variance, prev_tau2 , 0.1))
+    }
+    a_mh_tau = numerator / denominator
+    
+    if(!is.na(a_mh_tau)){
+      if(runif(1) <= min(a_mh_tau, 1)){
+        prev_tau2 = between_study_variance
+      } 
     }
   }
-  start_index = ceiling(mc_length*burn_in_rate)
-  result = tau2[mc_length]
-  return(result)
+  return(prev_tau2 )
 }
 
-  sample_mu <- function(tau2, observed_effects, within_study_variance){
+sample_mu <- function(tau2, observed_effects, within_study_variance, chain.length = 100 ,adjustment = NULL){
     n = length(observed_effects)
     mu_variance = 1/(sum(1/(within_study_variance + tau2)))
-    return(rnorm(1, mean(observed_effects), sqrt(mu_variance/n)))
+    if(is.null(adjustment)){
+      return(rnorm(1, mean(observed_effects), sqrt(mu_variance/n)))
+    } else if (adjustment == "magn"){
+      prev_mu = 0.3
+      for(t in 1:chain.length){
+        H_matrix = hessian_matrix(observed_effects, tau2, within_study_variance, prev_mu)
+        J_matrix = sandwich_J_matrix(observed_effects, tau2, within_study_variance, prev_mu)
+        Hinverse_times_J = solve(H_matrix) %*% J_matrix
+      
+        k = dim(Hinverse_times_J)[2]/sum(diag(Hinverse_times_J))
+        proposed_mu = rnorm(1, prev_mu, 0.1)
+        numerator = dnorm(proposed_mu, mean(observed_effects), sqrt(mu_variance/n))^k /
+                    dnorm(proposed_mu, prev_mu, 0.1)
+        denominator = dnorm(prev_mu, mean(observed_effects), sqrt(mu_variance/n))^k /
+                      dnorm(prev_mu, proposed_mu, 0.1)
+        a_mh_mu = numerator/ denominator
+        if(!is.na(a_mh_mu)) {
+          if(runif(1) <= min(a_mh_mu, 1)){
+            prev_mu = proposed_mu
+          }
+        }
+      }
+      return(prev_mu)
+    }
   }
 
 
-Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1, t_2 ,narm = 3){
+Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1, t_2 ,narm = 3, adjustment.method = NULL){
 
   temp_data = subset(dataout, t1 == t_1 & t2 == t_2)
   if(k == 1){
@@ -64,11 +90,12 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   prev_tau2 = 0.3
 
   for(t in 1:chain_length){
-    prev_mu = sample_mu(prev_tau2, observed_effects, within_study_variance)
-    prev_tau2 = mh_algorithm(observed_effects, within_study_variance, k, 500,t1, t2, prev_mu, burn_in_rate)
+    start = Sys.time()
+    prev_mu = sample_mu(prev_tau2, observed_effects, within_study_variance, adjustment = adjustment.method)
+    prev_tau2 = sample_tau2(observed_effects, within_study_variance, k, 100,t1, t2, prev_mu, burn_in_rate, adjustment =  adjustment.method)
     simulation_mu[t] = prev_mu
     simulation_tau2[t] = prev_tau2
-
+    print(paste("Step ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
   }
 
   store_row = ceiling(chain_length * burn_in_rate)
@@ -81,7 +108,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   }
   
   
-  Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, narm = 3){
+  Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, adjustment.method = NULL, narm = 3){
     simulation_mu = matrix(nrow = 1, ncol = 6)
     simulation_tau = simulation_mu
     for(k in 1:2){
@@ -99,7 +126,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
             }
             
             if (tau_index != 3){
-              sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3)
+              sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
               simulation_mu[1, (k-1)*3+tau_index] = mean(sim_result[[1]])
               simulation_tau[1, (k-1)*3+tau_index] = mean(sim_result[[2]])
               
