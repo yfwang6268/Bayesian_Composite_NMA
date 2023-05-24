@@ -135,7 +135,7 @@ Propose $q\left(\tau_{k,t}^{XZ^2} | \tau_{k,t-1}^{XZ^2} \right) = N(\tau_{k,t-1}
 | For $t$ from $1$ to $N$:
 |     Sample $\tau_{k,*}^{XZ^2} \sim N(\tau_{k,t-1}^{XZ^2}, 0.1)$
 |     Calculate $H\left(\tau_{k, t-1}, \mu_k\right)$ and $J\left(\tau_{k, t-1}, \mu_k\right)$
-|     Get $k = p/\sum_{i=1}^p\lambda_i$ from the the eigenvalues $\lambda_1, \dots, \lambda_p$ of $H\left(\tau_{k, t-1}, \mu_k\right)^{-1}J(\tau_{k, t-1}, \mu_k)$
+|     Get $k = p/\text{Trace}\left[H\left(\tau_{k, t-1}, \mu_k\right)^{-1}J(\tau_{k, t-1}, \mu_k)\right]$ where $p$ is the number of columns of $\left[H\left(\tau_{k, t-1}, \mu_k\right)^{-1}J(\tau_{k, t-1}, \mu_k)\right]$
 |     $a=\frac{P\left(\tau_{k,*}^{XZ^2} | y, \mu_k^{XZ} \right)^{k}/q\left(\tau_{k,*}^{XZ^2} | \tau_{k,t-1}^{XZ^2}\right)}{P\left(\tau_{k,t-1}^{XZ^2}| y, \mu_k^{XZ}\right)^k/q\left(\tau_{k,t-1}^{XZ^2} | \tau_{k,*}^{XZ^2},\right)}$
 |     If $runif(1) < min(a,1)$:
 |         $\tau_{k,t}^{XZ^2} = \tau_{k,*}^{XZ^2}$
@@ -143,7 +143,7 @@ Propose $q\left(\tau_{k,t}^{XZ^2} | \tau_{k,t-1}^{XZ^2} \right) = N(\tau_{k,t-1}
 |         $\tau_{k,t}^{XZ^2} = \tau_{k,t-1}^{XZ^2}$
 
 
-To adjust the likelihood on sampling, we inherent the derivation and adjust the likelhood part
+To adjust the likelihood on sampling $\mu$, we inherent the derivation and adjust the likelhood part
 $$
 \begin{aligned}
 p(\mu_k^{XZ} |\tau_k^{XZ^2} , y) &\propto \frac{L\left(\tau_k^{XZ^2}, \mu_k^{XZ}\right)^k}{L\left(\tau_k^{XZ^2}\right)^k} \\
@@ -158,7 +158,7 @@ Propose $q\left(\mu_{k,t}^{XZ} | \mu_{k,t-1}^{XZ} \right) = N(\mu_{k,t-1}^{XZ}, 
 | For $t$ from $1$ to $N$:
 |     Sample $\mu_{k,*}^{XZ^2} \sim N(\mu_{k,t-1}^{XZ}, 0.1)$
 |     Calculate $H\left(\tau_{k, t-1}, \mu_{k, t-1}\right)$ and $J\left(\tau_{k, t-1}, \mu_{k, t-1}\right)$
-|     Get $k = p/\sum_{i=1}^p\lambda_i$ from the the eigenvalues $\lambda_1, \dots, \lambda_p$ of $H\left(\tau_{k, t-1}, \mu_{k, t-1}\right)^{-1}J\left(\tau_{k, t-1}, \mu_{k, t-1}\right)$
+|     Get $k = p/\text{Trace}\left[H\left(\tau_{k, t-1}, \mu_{k, t-1}\right)^{-1}J\left(\tau_{k, t-1}, \mu_{k, t-1}\right)\right]$ where $p$ is the number of columns of $\left[H\left(\tau_{k, t-1}, \mu_{k, t-1}\right)^{-1}J\left(\tau_{k, t-1}, \mu_{k, t-1}\right)\right]$
 |     $a=\frac{P\left(\mu_{k,*}^{XZ} | y, \tau_k^{XZ^2} \right)^{k}/q\left(\mu_{k,*}^{XZ} | \mu_{k,t-1}^{XZ^2}\right)}{P\left(\mu_{k,t-1}^{XZ^2}| y, \tau_k^{XZ^2}\right)^k/q\left(\mu_{k,t-1}^{XZ} | \mu_{k,*}^{XZ}\right)}$
 |     If $runif(1) < min(a,1)$:
 |         $\mu_{k,t}^{XZ} = \mu_{k,*}^{XZ}$
