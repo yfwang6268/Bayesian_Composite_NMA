@@ -44,7 +44,7 @@ sample_tau2 <- function(observed_effects, within_study_variance, k, mc_length,t1
   return(prev_tau2 )
 }
 
-sample_mu <- function(tau2, observed_effects, within_study_variance, chain.length = 100 ,adjustment = NULL){
+sample_mu <- function(tau2, observed_effects, within_study_variance, chain.length = 500 ,adjustment = NULL){
     n = length(observed_effects)
     mu_variance = 1/(sum(1/(within_study_variance + tau2)))
     if(is.null(adjustment)){
@@ -92,7 +92,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   for(t in 1:chain_length){
     start = Sys.time()
     prev_mu = sample_mu(prev_tau2, observed_effects, within_study_variance, adjustment = adjustment.method)
-    prev_tau2 = sample_tau2(observed_effects, within_study_variance, k, 100,t1, t2, prev_mu, burn_in_rate, adjustment =  adjustment.method)
+    prev_tau2 = sample_tau2(observed_effects, within_study_variance, k, 500,t1, t2, prev_mu, burn_in_rate, adjustment =  adjustment.method)
     simulation_mu[t] = prev_mu
     simulation_tau2[t] = prev_tau2
     print(paste("Step ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
@@ -102,7 +102,13 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   simulation_tau = simulation_tau2[store_row:chain_length]
   simulation_mu = simulation_mu[store_row:chain_length]
 
-  result = list(simulation_mu, simulation_tau)
+  H_matrix = hessian_matrix(observed_effects, mean(simulation_tau), within_study_variance, mean(simulation_mu))
+  J_matrix = sandwich_J_matrix(observed_effects, mean(simulation_tau), within_study_variance, mean(simulation_mu))
+  sandwich_matirx = solve(H_matrix) %*% J_matrix %*% solve(H_matrix) / length(observed_effects)
+  sandwich_var_mu = sandwich_matirx[1,1]
+  sandwich_var_tau2 =   sandwich_matirx[2,2]
+  
+  result = list(simulation_mu, simulation_tau, sandwich_var_mu, sandwich_var_tau2)
   return(result)
   
   }
@@ -111,6 +117,10 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, adjustment.method = NULL, narm = 3){
     simulation_mu = matrix(nrow = 1, ncol = 6)
     simulation_tau = simulation_mu
+    variance_mu_mcmc = simulation_mu
+    variance_tau_mcmc = simulation_mu
+    variance_mu_sandwich = simulation_mu
+    variance_tau_sandwich = simulation_tau
     for(k in 1:2){
         for(t1 in 1:(narm-1)){
           for(t2 in (t1+1):narm){
@@ -128,8 +138,13 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
             if (tau_index != 3){
               sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
               simulation_mu[1, (k-1)*3+tau_index] = mean(sim_result[[1]])
+              variance_mu_mcmc[1, (k-1)*3+tau_index] = var(sim_result[[1]])
+              variance_mu_sandwich[1, (k-1)*3+tau_index] = sim_result[[3]]
               simulation_tau[1, (k-1)*3+tau_index] = mean(sim_result[[2]])
+              variance_tau_mcmc[1, (k-1)*3+tau_index] = var(sim_result[[2]])
+              variance_tau_sandwich[1, (k-1)*3+tau_index] = sim_result[[4]]
               
+
             }
            
           }
@@ -137,7 +152,9 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
         }   
    
     }
-   return(c(simulation_mu, simulation_tau))
+   return(c(simulation_mu, simulation_tau, 
+            variance_mu_mcmc, variance_tau_mcmc, 
+            variance_mu_sandwich, variance_tau_sandwich))
   }
   
   
