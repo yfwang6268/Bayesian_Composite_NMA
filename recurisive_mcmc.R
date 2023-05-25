@@ -90,12 +90,12 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   prev_tau2 = 0.3
 
   for(t in 1:chain_length){
-    start = Sys.time()
+    #start = Sys.time()
     prev_mu = sample_mu(prev_tau2, observed_effects, within_study_variance, adjustment = adjustment.method)
     prev_tau2 = sample_tau2(observed_effects, within_study_variance, k, 500,t1, t2, prev_mu, burn_in_rate, adjustment =  adjustment.method)
     simulation_mu[t] = prev_mu
     simulation_tau2[t] = prev_tau2
-    print(paste("Step ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
+    #print(paste("Step ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
   }
 
   store_row = ceiling(chain_length * burn_in_rate)
