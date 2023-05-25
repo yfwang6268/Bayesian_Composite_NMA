@@ -1,5 +1,5 @@
 ---
-title: "result_05252023"
+title: "result 05252023"
 author: "Yifei Wang"
 date: '2023-05-25'
 output: pdf_document
@@ -32,22 +32,13 @@ print(round(abs(magn_adjust_estimate - mu),4))
 Large bias may cause from two perspectives:
 
 1. We reduce the length of markov chain due to the computation burden.
-   The markov chain is too short to run the stable distribution. 
+    
+   * Gibbs Sampler: 5000 to 1000
+   * MH algorithm: 500 to 100
+   
+   The markov chain is too short to reach the stable distribution.
+   
 2. In the matrix $H(\cdot)$ and the matrix $J(\cdot)$, we used the estimate from the last step instead of MLE.
-
-```{r, include=FALSE}
-# double check on bias
-
-load('simulation_result_no_adjust_2023-05-24.RData')
-no_adjust_estimate = colMeans(posterior_mu)
-names(no_adjust_estimate) = c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
-no_adjust_estimate[3]  = no_adjust_estimate[1] - no_adjust_estimate[2]
-no_adjust_estimate[6]  = no_adjust_estimate[4] - no_adjust_estimate[5]
-print("Estimated value")
-print(no_adjust_estimate)
-print("Bias")
-print(round(abs(no_adjust_estimate - mu),4))
-```
 
 ```{r, include=FALSE}
 load('simulation_result_no_adjust_2023-05-24.RData')
@@ -66,24 +57,12 @@ gemtc_estimate = cbind(estimated_mu1, estimated_mu2)
 row.names(gemtc_estimate) <- NULL
 ```
 
-## MC Variance for 500 simulations
-
-```{r, echo=FALSE}
-trt_names= c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
-no_adjust_var = apply(posterior_mu,2,var)
-netmeta_var = apply(netmeta_estimate,2,var)
-gemtc_var = apply(gemtc_estimate,2,var)
-var_result = rbind(no_adjust_var,gemtc_var , netmeta_var)
-colnames(var_result) = trt_names
-rownames(var_result) = c("no adjust", "gemtc", "netmeta")
-print(round(var_result,3))
-```
+\newpage
 
 ## Density Plot for 500 simulations
 
 ```{r,echo=FALSE}
-#par(mfrow = c(2, 3))
-
+trt_names= c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
 m <- matrix(c(1,2,3,4,5,6,7,7,7),nrow = 3,ncol = 3,byrow = TRUE)
 
 layout(mat = m,heights = c(0.4,0.4,0.2))
@@ -101,5 +80,30 @@ for(i in 1:6){
 plot(1, type = "n", axes=FALSE, xlab="", ylab="")
 
  legend(x="top",inset = 0, legend = c("no adjustment", "netmeta", "gemtc"), lty = 1 ,col = c("orange", "red", "blue"), horiz = TRUE)
- 
 ```
+
+Bias for 500 simulations
+
+```{r, echo=FALSE}
+no_adjust_bias = abs(apply(posterior_mu,2,mean) - mu)
+netmeta_bias = abs(apply(netmeta_estimate,2,mean) - mu)
+gemtc_bias = abs(apply(gemtc_estimate,2,mean) - mu)
+bias_result = rbind(no_adjust_bias,gemtc_bias , netmeta_bias)
+colnames(bias_result) = trt_names
+rownames(bias_result) = c("no adjust", "gemtc", "netmeta")
+print(round(bias_result,3))
+```
+
+Variance for 500 simulations
+
+```{r, echo=FALSE}
+no_adjust_var = apply(posterior_mu,2,var)
+netmeta_var = apply(netmeta_estimate,2,var)
+gemtc_var = apply(gemtc_estimate,2,var)
+var_result = rbind(no_adjust_var,gemtc_var , netmeta_var)
+colnames(var_result) = trt_names
+rownames(var_result) = c("no adjust", "gemtc", "netmeta")
+print(round(var_result,3))
+```
+
+
