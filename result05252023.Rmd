@@ -1,0 +1,105 @@
+---
+title: "result_05252023"
+author: "Yifei Wang"
+date: '2023-05-25'
+output: pdf_document
+---
+
+## Bias for 500 simulations with magnitude adjustment
+
+The adjustment is based on the estimate from the last step.
+
+```{r,echo=FALSE}
+mu1 = c(0.5,1)
+mu2 = c(0,-0.5)
+mu1[3] = mu1[1] - mu1[2]
+mu2[3] = mu2[1] - mu2[2]
+mu = c(mu1, mu2)
+load('simulation_result_magn_1000_100_2023-05-25.RData')
+magn_adjust_estimate = posterior_mu
+load('simulation_result_magn_seed2_1000_100_2023-05-24.RData')
+magn_adjust_estimate = rbind(magn_adjust_estimate, posterior_mu)
+magn_adjust_estimate = colMeans(magn_adjust_estimate)
+names(magn_adjust_estimate) = c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
+magn_adjust_estimate[3]  = magn_adjust_estimate[1] - magn_adjust_estimate[2]
+magn_adjust_estimate[6]  = magn_adjust_estimate[4] - magn_adjust_estimate[5]
+print("Estimated value")
+print(magn_adjust_estimate)
+print("Bias")
+print(round(abs(magn_adjust_estimate - mu),4))
+```
+
+Large bias may cause from two perspectives:
+
+1. We reduce the length of markov chain due to the computation burden.
+   The markov chain is too short to run the stable distribution. 
+2. In the matrix $H(\cdot)$ and the matrix $J(\cdot)$, we used the estimate from the last step instead of MLE.
+
+```{r, include=FALSE}
+# double check on bias
+
+load('simulation_result_no_adjust_2023-05-24.RData')
+no_adjust_estimate = colMeans(posterior_mu)
+names(no_adjust_estimate) = c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
+no_adjust_estimate[3]  = no_adjust_estimate[1] - no_adjust_estimate[2]
+no_adjust_estimate[6]  = no_adjust_estimate[4] - no_adjust_estimate[5]
+print("Estimated value")
+print(no_adjust_estimate)
+print("Bias")
+print(round(abs(no_adjust_estimate - mu),4))
+```
+
+```{r, include=FALSE}
+load('simulation_result_no_adjust_2023-05-24.RData')
+posterior_mu[,3] = posterior_mu[,1] - posterior_mu[,2]  
+posterior_mu[,6] = posterior_mu[,4] - posterior_mu[,5]
+load('netmeta_simulation_2023-05-15.RData')
+estimated_mu1 =cbind(estimated_mu1, estimated_mu1[,1] - estimated_mu1[,2])  
+estimated_mu2 = cbind(estimated_mu2, estimated_mu2[,1] - estimated_mu2[,2])
+netmeta_estimate = cbind(estimated_mu1, estimated_mu2)
+row.names(netmeta_estimate) <- NULL
+
+load('gemtc_simulation_2023-05-15.RData')
+estimated_mu1[,3] =estimated_mu1[,1] - estimated_mu1[,2]  
+estimated_mu2[,3] = estimated_mu2[,1] - estimated_mu2[,2]
+gemtc_estimate = cbind(estimated_mu1, estimated_mu2)
+row.names(gemtc_estimate) <- NULL
+```
+
+## MC Variance for 500 simulations
+
+```{r, echo=FALSE}
+trt_names= c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
+no_adjust_var = apply(posterior_mu,2,var)
+netmeta_var = apply(netmeta_estimate,2,var)
+gemtc_var = apply(gemtc_estimate,2,var)
+var_result = rbind(no_adjust_var,gemtc_var , netmeta_var)
+colnames(var_result) = trt_names
+rownames(var_result) = c("no adjust", "gemtc", "netmeta")
+print(round(var_result,3))
+```
+
+## Density Plot for 500 simulations
+
+```{r,echo=FALSE}
+#par(mfrow = c(2, 3))
+
+m <- matrix(c(1,2,3,4,5,6,7,7,7),nrow = 3,ncol = 3,byrow = TRUE)
+
+layout(mat = m,heights = c(0.4,0.4,0.2))
+
+for(i in 1:6){
+  par(mar = c(2,2,1,1))
+  dens=density(posterior_mu[,i])
+  plot(dens$x,dens$y,xlab = "value", ylab = "density", xlim = c(-3,3), ylim = c(0,1.5), type="l", main=paste("Relative Effect: ", trt_names[i]), col="orange")
+  dens=density(netmeta_estimate[,i])
+  lines(dens$x,dens$y,type="l",col="red" )
+  dens=density(gemtc_estimate[,i])
+  lines(dens$x,dens$y,type="l",col="blue" )
+  
+}
+plot(1, type = "n", axes=FALSE, xlab="", ylab="")
+
+ legend(x="top",inset = 0, legend = c("no adjustment", "netmeta", "gemtc"), lty = 1 ,col = c("orange", "red", "blue"), horiz = TRUE)
+ 
+```
