@@ -99,28 +99,33 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   }
 
   store_row = ceiling(chain_length * burn_in_rate)
-  simulation_tau = simulation_tau2[store_row:chain_length]
-  simulation_mu = simulation_mu[store_row:chain_length]
-
-  H_matrix = hessian_matrix(observed_effects, mean(simulation_tau), within_study_variance, mean(simulation_mu))
-  J_matrix = sandwich_J_matrix(observed_effects, mean(simulation_tau), within_study_variance, mean(simulation_mu))
-  sandwich_matirx = solve(H_matrix) %*% J_matrix %*% solve(H_matrix) / length(observed_effects)
-  sandwich_var_mu = sandwich_matirx[1,1]
-  sandwich_var_tau2 =   sandwich_matirx[2,2]
+  estimated_tau2 = mean(simulation_tau2[store_row:chain_length])
+  estimated_tau2_var = var(simulation_tau2[store_row:chain_length])
+  estimated_mu = mean(simulation_mu[store_row:chain_length])
+  estimated_mu_var = var(simulation_mu[store_row:chain_length])
   
-  result = list(simulation_mu, simulation_tau, sandwich_var_mu, sandwich_var_tau2)
+  first_partial_derv = 0
+  second_partial_derv = 0
+  n_xz_k = length(observed_effects)
+  for(i in 1:n_xz_k){
+    first_partial_derv = first_partial_derv + (observed_effects[i]-estimated_mu)/
+                         (within_study_variance[i]+estimated_tau2)
+    second_partial_derv = second_partial_derv - 1/(within_study_variance[i]+estimated_tau2)
+  }
+  
+  result = c(estimated_mu, estimated_mu_var,
+           #  estimated_tau2, estimated_tau_var2,
+             first_partial_derv, second_partial_derv)
   return(result)
   
   }
   
   
   Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, adjustment.method = NULL, narm = 3){
-    simulation_mu = matrix(nrow = 1, ncol = 6)
-    simulation_tau = simulation_mu
-    variance_mu_mcmc = simulation_mu
-    variance_tau_mcmc = simulation_mu
-    variance_mu_sandwich = simulation_mu
-    variance_tau_sandwich = simulation_tau
+    estimated_mu =  numeric(6)
+    diag_H_mu = numeric(6)
+    J_mu = matrix(nrow = 6, ncol = 1)
+    variance_mu_mcmc = estimated_mu 
     for(k in 1:2){
         for(t1 in 1:(narm-1)){
           for(t2 in (t1+1):narm){
@@ -135,26 +140,21 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
               tau_index = 2 # CA
             }
             
-            if (tau_index != 3){
-              sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
-              simulation_mu[1, (k-1)*3+tau_index] = mean(sim_result[[1]])
-              variance_mu_mcmc[1, (k-1)*3+tau_index] = var(sim_result[[1]])
-              variance_mu_sandwich[1, (k-1)*3+tau_index] = sim_result[[3]]
-              simulation_tau[1, (k-1)*3+tau_index] = mean(sim_result[[2]])
-              variance_tau_mcmc[1, (k-1)*3+tau_index] = var(sim_result[[2]])
-              variance_tau_sandwich[1, (k-1)*3+tau_index] = sim_result[[4]]
-              
-
-            }
-           
+            sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
+            estimated_mu[(k-1)*3+tau_index] = sim_result[1]
+            variance_mu_mcmc[(k-1)*3+tau_index] = sim_result[2]
+            diag_H_mu[(k-1)*3+tau_index] = sim_result[3]
+            J_mu[(k-1)*3+tau_index,1] =  sim_result[4]
           }
 
         }   
    
     }
-   return(c(simulation_mu, simulation_tau, 
-            variance_mu_mcmc, variance_tau_mcmc, 
-            variance_mu_sandwich, variance_tau_sandwich))
+    J_matrix = J_mu %*% t(J_mu)
+    H_matrix = diag(diag_H_mu)
+    cov_matrix = solve(H_matrix) %*% J_matrix  %*% solve(H_matrix)
+    variance_mu_sandwich = diag(cov_matrix)
+   return(c(estimated_mu,variance_mu_mcmc, variance_mu_sandwich))
   }
   
   

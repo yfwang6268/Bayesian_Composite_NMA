@@ -1,5 +1,4 @@
-print(utils::getSrcDirectory(function(){}))
-setwd(getSrcDirectory(function(){})[1])
+
 #source("adjusted_metropolis_hasting_algorithm.R")
 source("recurisive_mcmc.R")
 #source("log_composite_likelihood.R")
@@ -46,16 +45,17 @@ number_of_simulation <- 1
 # Single Core Running
 
 posterior_mu <- NULL
-posterior_tau <- NULL
-simulated_data <- NULL
+posterior_mu_var_posterior <- NULL
+posterior_mu_var_sandwich <- NULL
 
 for(t in 1:number_of_simulation){
   start <- Sys.time()
   temp_simulated_data <- gendata(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
   temp_posterior <- Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
  # simulated_data = append(simulated_data, temp_simulated_data)
-  posterior_mu = rbind(posterior_mu, temp_posterior[1:6])
-  posterior_tau = rbind(posterior_tau, temp_posterior[7:12])
+  estimated_mu = rbind(posterior_mu, temp_posterior[1:6])
+  posterior_mu_var_posterior= rbind(posterior_mu_var_posterior, temp_posterior[7:12])
+  posterior_mu_var_sandwich = rbind(posterior_mu_var_sandwich, temp_posterior[13:18])
   print(paste("Simulation ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
 }
 
@@ -79,7 +79,7 @@ for(t in 1:number_of_simulation){
 # stopCluster(cl = my.cluster)
 # simulation_result_matrix =  matrix(simulation_result, ncol = 12, byrow = T)
 filename <- paste("simulation_result_no_adjustment", Sys.Date(),".RData", sep="")
-save(posterior_mu,posterior_tau,file = filename)
+save(posterior_mu,estimated_mu_var_posterior,estimated_mu_var_sandwich,file = filename)
 
 # temp_mu = simulation_result[,1:6]
 # true_mu = c(0.5,1,-0.5, 0,-0.5,0.5)
