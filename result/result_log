@@ -1,0 +1,42 @@
+409 interations; conditional normal dist for mu; 500 burn-in for sampling tau
+
+mu bias
+
+> print(round(bias/number_of_simulation,3))
+[1] 0.215 0.634 0.856 0.184 0.468 0.539
+
+note: around 1.6 min per simulation
+
+500 Gibbs Sampler
+
+ print(round(bias/number_of_simulation,3))
+[1] 0.231 0.665 0.835 0.197 0.490 0.517
+
+250 Gibbs Sampler
+
+> print(round(bias/number_of_simulation,3))
+[1] 0.222 0.661 0.838 0.191 0.483 0.527
+
+Use the Duan's function to simulate the data
+Run my algorithm to estimate the parameter
+print(round(bias/number_of_simulation,3))
+[1] 0.266 0.757 0.729 0.537 1.046 0.013
+
+
+Try 5000 MCMC length with updated structure
+> print(round(bias/number_of_simulation,3))
+[1] 0.283 0.776 0.715 0.530 1.021 0.028
+
+Using mcmc algorithm, simulate tau2 from p(tau2|y) then simulate mu from p(mu|tau2, mu,y) 
+Estimate the effect indiviually for each treatment under each outcome
+> print(round(bias/number_of_simulation,3))
+[1] 0.280 0.780 0.720 0.524 1.024 0.024
+
+Recursive gibbs sampler
+> print(round(bias/number_of_simulation,3))
+[1] 0.636 1.140 0.380 0.659 0.150 1.156
+
+To do list:
+try gemtc on existing simulated dataset and compare the results with the paper
+check how gemtc estimate effects under Bayesian framework
+check how gemtc accout for consistentcy
