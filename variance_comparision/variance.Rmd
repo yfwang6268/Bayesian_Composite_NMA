@@ -2,14 +2,16 @@
 title: "Variance Estimates"
 author: "Yifei Wang"
 date: '2023-05-22'
-output: html_document
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-#### Cooley2011: Marginal likelihood
+## Cooley2011: Marginal likelihood
 
 Composite Likelihood without adjustment
 
@@ -36,7 +38,7 @@ $$
 H\left(\theta_0\right)=-\mathbb{E}\left[\nabla^2 \ell_c\left(\theta_0 ; Y\right)\right] \text { and } J\left(\theta_0\right)=\operatorname{Var}\left[\nabla \ell_c\left(\theta_0 ; Y\right)\right]
 $$
 
-#### Lazar2003Biometrika: empirical likelihood
+## Lazar2003Biometrika: empirical likelihood
 
 No variance is estimated. Instead, the coverage probability and length (with standard errors) are calculated for the empirical likelihood CI in the simulation part.
 
@@ -51,11 +53,11 @@ I_{c_0}^{-1}=I_0^{-1}+I_c\left(\hat{\theta}_{P L}\right)^{-1} \rightarrow I_c\le
 $$
 where $I(\theta)=E\left(-\nabla \ell_{p *}(\theta ; Y)\right)$
 
-#### Graziani2020PlosOne_BayesianMultivariateNMA
+## Graziani2020PlosOne_BayesianMultivariateNMA
 
 $2.5\%$, median and $97.5\%$ are reported from the highest posterior density (HPD) credibility intervals
 
-#### Lu2006JASA_bayesian_NMA
+## Lu2006JASA_bayesian_NMA
 
 The paper provides the standard deviation in the application part without specifying the calculation details. The values could be calculated from the mcmc samples.
 

@@ -97,19 +97,12 @@ Input: data y
 Output: A realization of length $N$ from a Markov Chain for $\left(\tau_k^{XZ}, \mu_k^{XZ}\right)$ 
 
 | for $k \in \{1,2\}$
-|     for $t$ from 1 to N
-|         for $XZ \in \{AB, AC, BC\}$
-|               sample $\tau_k^{XZ(p)} \sim  p(\tau_k^{XZ^2}|y)$
-|               sample $\mu_k^{XZ(p)} \sim N(\bar{y}_{XZ}^k, \frac{\left(\sigma_k^{XZ}\right)^2}{n_{xz}^k})$ where $\frac{\left(\sigma_k^{XZ}\right)^2}{n_{xz}^k} = \frac{1 }{\sum_{i \in N_{XZ}^k} \frac{1}{\left(s_{k,i}^{XZ}+\tau_k^{XZ^2}\right)}}$ and $\bar{y}_{xz}^k = \frac{1}{n_{xz}^k} \sum_{i \in N_{XZ}^k} y_{k,i}^{xz}$
-|         $\tau_k^p = \left\{\tau_k^{BA}, \tau_k^{AC}, \tau_k^{BC}\right\}$
-|         $\mu_k^p = \left\{\mu_k^{BA}, \mu_k^{AC}, \mu_k^{BC}\right\}$
-|         $a = \frac{\prod_{XZ \in \{AB, AC, BC\}}P\left(\mu_k^{XZ(p)}|y,\tau_k^{XZ^2(p)}\right)P\left(\tau_k^{XZ^2(p)}|y\right)}{\prod_{XZ \in \{AB, AC, BC\}} P\left(\mu_k^{XZ(t-1)}|y,\tau_k^{XZ^2(t-1)}\right)P\left(\tau_k^{XZ^2(t-1)}|y\right)}$
-|         if $runif(1) <= min\left(1,a\right):$
-|             $\tau_k^t = \tau_k^p$
-|             $\mu_k^t = \mu_k^p$
-|         else:
-|             $\tau_k^t = \tau_k^{t-1}$
-|             $\mu_k^t = \mu_k^{t-1}$
+|     for $XZ \in \{AB, AC, BC\}$
+|         for $t = 1 \cdots N$:
+|             sample $\tau_k^{XZ(p)} \sim  p(\tau_k^{XZ^2}|y)$
+|             sample $\mu_k^{XZ(p)} \sim N(\bar{y}_{XZ}^k, \frac{\left(\sigma_k^{XZ}\right)^2}{n_{xz}^k})$ where $\frac{\left(\sigma_k^{XZ}\right)^2}{n_{xz}^k} = \frac{1 }{\sum_{i \in N_{XZ}^k} \frac{1}{\left(s_{k,i}^{XZ}+\tau_k^{XZ^2}\right)}}$ and $\bar{y}_{xz}^k = \frac{1}{n_{xz}^k} \sum_{i \in N_{XZ}^k} y_{k,i}^{xz}$
+|             $\tau_k^{XZ^2(t)} = \tau_k^{XZ^2(p)}$
+|             $\mu_k^{XZ(t)} = \mu_k^{XZ(p)}$
 
 
 

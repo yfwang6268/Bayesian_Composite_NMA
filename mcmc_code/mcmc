@@ -1,0 +1,109 @@
+mh_algorithm <- function(dataout, k, narm = 3){
+  
+ 
+
+  
+  return(list(mu_result, tau_result))
+}
+
+
+Gibbs_Sampler <- function(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3){
+  
+  
+  simulation_mu = numeric(k)
+  simulation_tau = simulation_mu
+  for(k in 1:2){
+    for(t in 1: (chain_length + 1)){
+      if (t == 1){
+        if(k == 1){
+            previous_mu = c(0.4,0.8,-0.4)
+            previous_tau = c(0.2,0.3,0.451)
+          } else {
+            previous_mu = c(0.1,-0.5,0.6)
+            previous_tau = c(0.3,0.1,0.365)
+          }
+        simulation_mu[t,(k-1)*3+1:3] = previous_mu  
+        simulation_tau[t,(k-1)*3+1:3] = previous_tau
+      } else {
+
+        proposed_result = sampling_mu_and_tau(dataout, k)
+        proposed_mu = proposed_result[[1]]
+        proposed_tau = proposed_result[[2]]
+
+        numerator = product_propose_distribution(dataout, proposed_tau, proposed_mu, k)
+        denominator = product_propose_distribution(dataout, previous_tau, previous_mu, k)
+
+        #print(c(proposed_tau, proposed_mu))
+        a = numerator/denominator
+        if(runif(1) <= min(a,1)){
+          simulation_mu[t,(k-1)*3+1:3] = proposed_mu
+          simulation_tau[t,(k-1)*3+1:3] = proposed_tau
+          previous_mu = proposed_mu
+          previous_tau = proposed_tau
+        } else {
+          simulation_mu[t,(k-1)*3+1:3] = previous_mu
+          simulation_tau[t,(k-1)*3+1:3] = previous_tau
+        }
+
+
+      }
+
+
+
+
+
+    }
+
+
+
+
+  }
+  
+# for(t in 1:chain_length){
+#   if(t == 1){
+#     previous_mu = c(0.4,0.8,-0.4,0.1,-0.5,0.6)
+#     previous_tau = c(0.2,0.3,0.451,0.3,0.1,0.365)
+#     simulation_mu[t,] = previous_mu
+#     simulation_tau[t,] = previous_tau
+#     
+#   } else {
+#     
+#     # proposed new parameter value
+#     
+#     proposed_result = sampling_mu_and_tau(dataout, previous_tau)
+#     proposed_mu = proposed_result[[1]]
+#     
+#     
+#     
+#     simulation_mu[t,] = proposed_result[[1]]
+#     simulation_tau[t,] = proposed_result[[2]]
+#     
+#     previous_mu = proposed_result[[1]]
+#     previous_tau = proposed_result[[2]]
+#   }
+# }
+  
+  store_row = floor(chain_length * burn_in_rate) + 1
+  
+  simulation_mu = simulation_mu[store_row:(chain_length+1),]
+  simulation_tau = simulation_tau[store_row:(chain_length+1),]
+  result = list(simulation_mu, simulation_tau)
+  return(result)
+  
+  }
+  
+  
+  
+  
+  
+  
+  
+  
+
+  
+  
+  
+  
+  
+  
+  

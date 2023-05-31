@@ -21,19 +21,19 @@ load("simulation_result_no_adjust_var_seed1_2023-05-26.RData")
 mu_var_mcmc = posterior_mu_var_mcmc
 mu_var_sandwich = posterior_mu_var_sandwich
 tau_var_mcmc = posterior_tau_var_mcmc
-tau_var_sandwich = posterior_mu_var_sandwich
+tau_var_sandwich = posterior_tau_var_sandwich
 
 load("simulation_result_no_adjust_var_seed2_2023-05-26.RData")
 mu_var_mcmc = rbind(mu_var_mcmc, posterior_mu_var_mcmc)
 mu_var_sandwich = rbind(mu_var_sandwich,posterior_mu_var_sandwich)
 tau_var_mcmc = rbind(tau_var_mcmc, posterior_tau_var_mcmc)
-tau_var_sandwich = rbind(tau_var_sandwich, posterior_mu_var_sandwich)
+tau_var_sandwich = rbind(tau_var_sandwich, posterior_tau_var_sandwich)
 
 load("simulation_result_no_adjust_var_seed3_2023-05-26.RData")
 mu_var_mcmc = rbind(mu_var_mcmc, posterior_mu_var_mcmc)
 mu_var_sandwich = rbind(mu_var_sandwich,posterior_mu_var_sandwich)
 tau_var_mcmc = rbind(tau_var_mcmc, posterior_tau_var_mcmc)
-tau_var_sandwich = rbind(tau_var_sandwich, posterior_mu_var_sandwich)
+tau_var_sandwich = rbind(tau_var_sandwich, posterior_tau_var_sandwich)
 
 mu_var_mcmc = colMeans(mu_var_mcmc)
 mu_var_sandwich = colMeans(mu_var_sandwich)
