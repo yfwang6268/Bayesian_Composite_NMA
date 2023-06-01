@@ -1,5 +1,5 @@
 ---
-title: "H and J matrix"
+title: "H and J matrix under multivariate setting"
 author: "Yifei Wang"
 date: '2023-06-01'
 output: pdf_document
