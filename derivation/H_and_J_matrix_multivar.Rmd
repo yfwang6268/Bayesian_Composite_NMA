@@ -21,7 +21,7 @@ $$
 0 & 0 & 0 & 0 & 0 &  -\frac{\partial^2 \ell}{\partial\left(\mu_2^{BC}\right)^2} \\
 \end{array}\right]
 $$
-where $\frac{\partial^2 \ell}{\partial\left(\mu_2^{XZ}\right)^2} = -\sum_{i \in N_{XZ}^k} \frac{1}{s_{k,i}^{XZ^2}+\tau_{k}^{XZ^2}}$
+where $\frac{\partial^2 \ell}{\partial\left(\mu_k^{XZ}\right)^2} = -\sum_{i \in N_{XZ}^k} \frac{1}{s_{k,i}^{XZ^2}+\tau_{k}^{XZ^2}}$
 
 ## J matrix
 

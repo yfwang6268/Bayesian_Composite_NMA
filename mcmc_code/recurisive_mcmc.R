@@ -108,9 +108,9 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   second_partial_derv = 0
   n_xz_k = length(observed_effects)
   for(i in 1:n_xz_k){
-    first_partial_derv = first_partial_derv + (observed_effects[i]-estimated_mu)/
-                         (within_study_variance[i]+estimated_tau2)
-    second_partial_derv = second_partial_derv - 1/(within_study_variance[i]+estimated_tau2)
+    first_partial_derv = first_partial_derv + 4*(observed_effects[i]-estimated_mu)^2/
+                         (within_study_variance[i]+estimated_tau2)^2
+    second_partial_derv = second_partial_derv + 1/(within_study_variance[i]+estimated_tau2)
   }
   
   result = c(estimated_mu, estimated_mu_var,
@@ -124,7 +124,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
   Gibbs_Sampler_Overall <- function(dataout, chain_length, burn_in_rate, adjustment.method = NULL, narm = 3){
     estimated_mu =  numeric(6)
     diag_H_mu = numeric(6)
-    J_mu = matrix(nrow = 6, ncol = 1)
+    J_mu = numeric(6)
     variance_mu_mcmc = estimated_mu 
     for(k in 1:2){
         for(t1 in 1:(narm-1)){
@@ -143,14 +143,15 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
             sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
             estimated_mu[(k-1)*3+tau_index] = sim_result[1]
             variance_mu_mcmc[(k-1)*3+tau_index] = sim_result[2]
-            diag_H_mu[(k-1)*3+tau_index] = sim_result[3]
-            J_mu[(k-1)*3+tau_index,1] =  sim_result[4]
+            J_mu[(k-1)*3+tau_index] =  sim_result[3]
+            diag_H_mu[(k-1)*3+tau_index] = sim_result[4]  
+            
           }
 
         }   
    
     }
-    J_matrix = J_mu %*% t(J_mu)
+    J_matrix = diag(J_mu)/4
     H_matrix = diag(diag_H_mu)
     cov_matrix = solve(H_matrix) %*% J_matrix  %*% solve(H_matrix)
     variance_mu_sandwich = diag(cov_matrix)

@@ -1,0 +1,53 @@
+---
+title: "Variance Comparision"
+author: "Yifei Wang"
+date: '2023-06-01'
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+This file is to compare the variance from the simulation. Based on the result, we calcuate three types of simulations
+
+1. Posterior variance: variance estimated from the posterior distribution (unadjusted), take average of 500 samples
+2. Sandwich variance: variance estimated by sandwich method, taking average of 500 samples
+
+The result is shown below
+
+
+```{r, include=FALSE}
+mu_var_pos = NULL
+mu_var_sand = NULL
+mu_posterior = NULL
+load("simulation_result_no_adjustment_seed1_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed2_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed3_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed4_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+```
+
+```{r, echo=FALSE}
+mu_var_pos = colMeans(mu_var_pos)
+mu_var_sand = colMeans(mu_var_sand)
+mu_var_sim = apply(mu_posterior,2,var)
+result = rbind(mu_var_pos,mu_var_sand, mu_var_sim)
+rownames(result) = c("Posterior", "Sandwich", "Simulation")
+colnames(result) = c("BA1", "CA1","BC1", "BA2", "CA2", "BC2")
+knitr::kable(round(result,4))
+```
+
+
+
