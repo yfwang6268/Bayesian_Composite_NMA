@@ -12,6 +12,9 @@ mu2 = c(0,-0.5)
 mu1[3] = mu1[1] - mu1[2]
 mu2[3] = mu2[1] - mu2[2]
 mu = c(mu1, mu2)
+
+# high correlation
+
 mu_var_pos = NULL
 mu_var_sand = NULL
 mu_posterior = NULL
@@ -65,28 +68,81 @@ bias_result = rbind(no_adjust_bias,gemtc_bias , netmeta_bias)
 colnames(bias_result) = c("BA1", "CA1","BC1", "BA2", "CA2", "BC2")
 rownames(bias_result) = c("no adjust", "gemtc", "netmeta")
 
+# low correlation
+
+mu_var_pos = NULL
+mu_var_sand = NULL
+mu_posterior = NULL
+load("simulation_result_no_adjustment_seed1_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed2_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed3_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+load("simulation_result_no_adjustment_seed4_2023-06-02.RData")
+mu_var_pos = rbind(mu_var_pos, mu_var_posterior)
+mu_var_sand = rbind(mu_var_sand, mu_var_sandwich)
+mu_posterior = rbind(mu_posterior, posterior_mu)
+
+mu_var_pos = colMeans(mu_var_pos)
+mu_var_sand = colMeans(mu_var_sand)
+mu_var_sim = apply(mu_posterior,2,var)
+var_result_lc = rbind(mu_var_pos,mu_var_sand, mu_var_sim)
+rownames(var_result_lc) = c("Posterior", "Sandwich", "Simulation")
+colnames(var_result_lc) = c("BA1", "CA1","BC1", "BA2", "CA2", "BC2")
+
+load('netmeta_simulation_2023-05-15.RData')
+estimated_mu1 =cbind(estimated_mu1, estimated_mu1[,1] - estimated_mu1[,2])  
+estimated_mu2 = cbind(estimated_mu2, estimated_mu2[,1] - estimated_mu2[,2])
+netmeta_estimate = cbind(estimated_mu1, estimated_mu2)
+row.names(netmeta_estimate) <- NULL
+
+load('gemtc_simulation_2023-05-15.RData')
+estimated_mu1[,3] =estimated_mu1[,1] - estimated_mu1[,2]  
+estimated_mu2[,3] = estimated_mu2[,1] - estimated_mu2[,2]
+gemtc_estimate = cbind(estimated_mu1, estimated_mu2)
+row.names(gemtc_estimate) <- NULL
+
+no_adjust_bias = abs(colMeans(mu_posterior) - mu)
+netmeta_bias = abs(colMeans(netmeta_estimate) - mu)
+gemtc_bias = abs(colMeans(gemtc_estimate) - mu)
+bias_result_lc = rbind(no_adjust_bias,gemtc_bias , netmeta_bias)
+colnames(bias_result_lc) = c("BA1", "CA1","BC1", "BA2", "CA2", "BC2")
+rownames(bias_result_lc) = c("no adjust", "gemtc", "netmeta")
 ```
 
-This file is to compare the bias and  variance from the simulation result when the correlation is 0.5. For the bias, we caluclate the three variance:
+This file is to compare the bias and  variance from the simulation result when the correlation is 0.5. For the bias, we calculate the three variance:
 
 1. Bias between the true and the estimated value from Bayesian composite likelihood
 2. Bias between the true and the estimated value from gemtc
 3. Bias between the true and the estimated value from netmeta
-
 ```{r, echo=FALSE}
 knitr::kable(round(bias_result,4))
 ```
-
+When the between study correlation is 0.1 and the within study correlation is 0.2 (setting 1 in Duan2020), the bias result is
+```{r, echo=FALSE}
+knitr::kable(round(bias_result_lc,4))
+```
 For the variance, we calcuate three types of variance.
 
-1. Posterior variance: variance estimated from the posterior distribution (unadjusted), take average of 500 samples
+1. Posterior variance: variance estimated from the posterior distribution, take average of 500 samples
 2. Sandwich variance: variance estimated by sandwich method, taking average of 500 samples
 3. Simulation variance: variances estimated by 500 simulations
-
-
 ```{r, echo=FALSE}
 knitr::kable(round(var_result,4))
 ```
+When the between  study correlation is 0.1 and the within study correlation is 0.2 (setting 1 in Duan2020), the variance result is
+```{r, echo=FALSE}
+
+knitr::kable(round(var_result_lc,4))
+```
+
 
 
 
