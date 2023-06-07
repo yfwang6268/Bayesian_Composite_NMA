@@ -117,8 +117,8 @@ for(sim_t in 1: simulation_time){
   y = cbind(BA_outcome1, BA_outcome2, CA_outcome1,CA_outcome2,BC_outcome1, BC_outcome2)
   ss = cbind(BA_sd1, BA_sd2, CA_sd1, CA_sd2, BC_sd1,BC_sd2)
   #y = rmvnorm(30, mean =rep(0,6), sigma = diag(6))
-  colnames(y) = c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
-  colnames(ss) = c("BA1", "CA1", "BC1", "BA2", "CA2", "BC2")
+  colnames(y) = c("BA1", "BA2", "CA1", "CA2", "BC1", "BC2")
+  colnames(ss) = c("BA1", "BA2", "CA1", "CA2", "BC1", "BC2")
   # Assemble data for sending to JAGS:
   datalist = list(
     y = y,
@@ -261,11 +261,14 @@ difference <- difftime(time_end, start, units='mins')
 
 
 posterior_mu = rbind(posterior_mu, colMeans(codaSamples[[1]]))
-posterior_sd = rbind(posterior_mu, apply(codaSamples[[1]],2,sd))
+posterior_sd = rbind(posterior_sd, apply(codaSamples[[1]],2,sd))
 
 print(paste(sim_t,"th Simulation using " , round(difference,4), " minutes"))
 
 }
+colnames(posterior_mu) <- c("BA1", "BA2", "CA1", "CA2", "BC1", "BC2")
+colnames(posterior_sd) <- c("BA1", "BA2", "CA1", "CA2", "BC1", "BC2")
+
 filename <- paste("simulation_result_full_likelihood_Bayesian_", Sys.Date(),".RData", sep="")
 save(posterior_mu,posterior_sd,file = filename)
 
