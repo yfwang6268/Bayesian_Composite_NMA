@@ -31,7 +31,7 @@ simulation_time = 2
 
 posterior_mu = NULL
 posterior_sd = NULL
-  
+
 
 for(sim_t in 1: simulation_time){
   start = Sys.time()
@@ -139,8 +139,13 @@ model {
   for ( i in 1: Ntotal_two_arm ) {
     Two_Arm_CovMat[i,1,1] <- ss[i,2*Two_Arm_VarIdx[i]-1]^2 + tau2[2*Two_Arm_VarIdx[i]-1]
     Two_Arm_CovMat[i,2,2] <- ss[i,2*Two_Arm_VarIdx[i]]^2 + tau2[2*Two_Arm_VarIdx[i]]
-    Two_Arm_CovMat[i,1,2] <- ss[i,2*Two_Arm_VarIdx[i]-1] * ss[i,2*Two_Arm_VarIdx[i]-1]*rho_w[2*Two_Arm_VarIdx[i], 2*Two_Arm_VarIdx[i]-1] + 
-                            sqrt(tau2[2*Two_Arm_VarIdx[i]-1] * tau2[2*Two_Arm_VarIdx[i]])*rho_b[2*Two_Arm_VarIdx[i], 2*Two_Arm_VarIdx[i]-1]
+#    Two_Arm_CovMat[i,1,2] <- ss[i,2*Two_Arm_VarIdx[i]-1] * ss[i,2*Two_Arm_VarIdx[i]-1]*rho_w[2*Two_Arm_VarIdx[i], 2*Two_Arm_VarIdx[i]-1] + 
+#                            sqrt(tau2[2*Two_Arm_VarIdx[i]-1] * tau2[2*Two_Arm_VarIdx[i]])*rho_b[2*Two_Arm_VarIdx[i], 2*Two_Arm_VarIdx[i]-1]
+     Two_Arm_CovMat[i,1,2] <- ss[i,2*Two_Arm_VarIdx[i]] * ss[i,2*Two_Arm_VarIdx[i]-1]*test_single_rho_w + 
+                             sqrt(tau2[2*Two_Arm_VarIdx[i]-1] * tau2[2*Two_Arm_VarIdx[i]])*test_single_rho_b
+    
+    
+    
     Two_Arm_CovMat[i,2,1] <- Two_Arm_CovMat[i,1,2]
     Two_Arm_InvCov[i,1:2, 1:2] <- inverse(Two_Arm_CovMat[i,,])
    
@@ -199,12 +204,25 @@ model {
   for ( Idx1 in 2:Nvar ) {
     for ( Idx2 in 1:(Idx1-1)) {
       rho_b[Idx1,Idx2] ~ dunif(0,1)
-      
     }
   }
-
-
   
+  test_single_rho_w ~ dunif(0,1)
+  
+  for ( Idx1 in 1:Nvar ) {
+    for ( Idx2 in 1:Nvar) {
+      test_rho_w[Idx1,Idx2] = test_single_rho_w 
+    }
+  }
+  
+  test_single_rho_b ~ dunif(0,1)
+  
+  for ( Idx1 in 1:Nvar ) {
+    for ( Idx2 in 1:Nvar) {
+      test_rho_b[Idx1,Idx2] = test_single_rho_b 
+    }
+  }
+    
 
 
   # between study covariance
@@ -271,4 +289,3 @@ colnames(posterior_sd) <- c("BA1", "BA2", "CA1", "CA2", "BC1", "BC2")
 
 filename <- paste("simulation_result_full_likelihood_Bayesian_", Sys.Date(),".RData", sep="")
 save(posterior_mu,posterior_sd,file = filename)
-
