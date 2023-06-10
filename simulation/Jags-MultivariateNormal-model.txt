@@ -1,0 +1,48 @@
+
+model {
+  # Likelihood for two-arm study
+  for ( i in 1: Ntotal_two_arm ) {
+    Two_Arm_CovMat[i,1,1] <- ss[i,2*Two_Arm_VarIdx[i]-1]^2 + tau2[2*Two_Arm_VarIdx[i]-1]
+    Two_Arm_CovMat[i,2,2] <- ss[i,2*Two_Arm_VarIdx[i]]^2 + tau2[2*Two_Arm_VarIdx[i]]
+    Two_Arm_CovMat[i,1,2] <- ss[i,2*Two_Arm_VarIdx[i]] * ss[i,2*Two_Arm_VarIdx[i]-1]*rho_w + 
+                             sqrt(tau2[2*Two_Arm_VarIdx[i]-1] * tau2[2*Two_Arm_VarIdx[i]])*rho_b
+    Two_Arm_CovMat[i,2,1] <- Two_Arm_CovMat[i,1,2]
+    Two_Arm_InvCov[i,1:2, 1:2] <- inverse(Two_Arm_CovMat[i,,])
+    y[i,c(Two_Arm_VarIdx[i],Two_Arm_VarIdx[i]+1)] ~ dmnorm(dist_mu[c(Two_Arm_VarIdx[i], 1+Two_Arm_VarIdx[i])] ,Two_Arm_InvCov[i,,])
+  }
+  
+  # Likelihood for three-arm study
+  for(i in 1:Ntotal_three_arm){
+      for(j in 1:6){
+        for(k in 1:6){
+            #Three_Arm_WithinCov_Diag[i,j,k] <- ifelse(j == k, ss[i+Ntotal_two_arm,j]^2, 0)
+            Three_Arm_CovMat[i,j,k] <- ifelse(j==k, 
+                                              ss[i+Ntotal_two_arm,j]^2 + tau2[j],
+                                              ss[i+Ntotal_two_arm,j] * ss[i+Ntotal_two_arm,k] * rho_w +
+                                              sqrt(tau2[j] * tau2[k]) * rho_b )
+        }
+      }
+      Three_Arm_InvCov[i,1:Nvar, 1:Nvar] <- inverse(Three_Arm_CovMat[i,,])
+      y[i+Ntotal_two_arm,] ~ dmnorm(dist_mu,Three_Arm_InvCov[i,,])
+  }
+  
+  # Priors
+  # mu
+  for ( varIdx in 1:(Nvar-2) ) { 
+    mu[varIdx] ~ dnorm(0,tau2[varIdx])
+  }
+  dist_mu[1:6] = c(mu,mu[1] - mu[3],mu[2] - mu[4])
+
+  # rho
+  rho_w ~ dunif(0,0.5)
+  rho_b ~ dunif(0,0.5)
+
+  # between study variance
+   for ( Idx1 in 1:Nvar ) {
+      log_tau[Idx1] ~ dunif(0,1)
+      tau2[Idx1] = exp(-2*log_tau[Idx1])
+   }
+}
+
+
+
