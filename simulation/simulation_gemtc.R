@@ -5,7 +5,7 @@ library(MASS)
 source("CLNMA_functions.R")
 source("functions_gemtc.R")
 
-simulation_times = 500
+simulation_times = 1
 set.seed(1)
 mu1 = c(0.5,1)
 mu2 = c(0,-0.5)
@@ -32,12 +32,14 @@ nab = nac=nbc=nabc=5
 
 # mcmc setting
 n.chain = 4
-n.adapt = 5000
-n.iter = 100000
+n.adapt = 500
+n.iter = 10000
 thin = 10
 
 estimated_mu1 = NULL
 estimated_mu2 = NULL
+estimated_ci1 = NULL
+estimated_ci2 = NULL
 
 for(t in 1:simulation_times){
   start <- Sys.time()
@@ -45,9 +47,9 @@ for(t in 1:simulation_times){
   # prepare the dataset
   dataout = gendata(nab,nac,nbc,nabc,mu1,mu2,betweenv,rho_w,ss1,ss2)
   dataout1 = subset(dataout,  select = c("ID", "t1", "t2", "outcome1", "sd1"))
-  dataout1 = prepare_dataset_for_gemtc(dataout1)
+  dataout1 = prepare_dataset_for_gemtc(dataout1, nab, nac, nbc, nabc)
   dataout2 = subset(dataout,  select = c("ID", "t1", "t2", "outcome2", "sd2"))
-  dataout2 = prepare_dataset_for_gemtc(dataout2)
+  dataout2 = prepare_dataset_for_gemtc(dataout2, nab, nac, nbc, nabc)
   
   # std.err of the reference arm must < std.err of the relative effects
   valid_dataou1 = valid_std_err(dataout1)
@@ -56,9 +58,9 @@ for(t in 1:simulation_times){
   while(!(valid_dataou1 & valid_dataou2)){
     dataout = gendata(nab,nac,nbc,nabc,mu1,mu2,betweenv,rho_w,ss1,ss2)
     dataout1 = subset(dataout,  select = c("ID", "t1", "t2", "outcome1", "sd1"))
-    dataout1 = prepare_dataset_for_gemtc(dataout1)
+    dataout1 = prepare_dataset_for_gemtc(dataout1, nab, nac, nbc, nabc)
     dataout2 = subset(dataout,  select = c("ID", "t1", "t2", "outcome2", "sd2"))
-    dataout2 = prepare_dataset_for_gemtc(dataout2)
+    dataout2 = prepare_dataset_for_gemtc(dataout2, nab, nac, nbc, nabc)
     valid_dataou1 = valid_std_err(dataout1)
     valid_dataou2 = valid_std_err(dataout2)
   }
@@ -87,14 +89,36 @@ for(t in 1:simulation_times){
   temp_result2 = relative.effect(mcmc2, t1=3)
   temp_samplers1 = NULL
   temp_samplers2 = NULL
-  for(i in 1:4){
+  temp_ci1 = NULL
+  temp_ci2 = NULL
+  
+  for(i in 1:n.chain){
     temp_samplers1 = rbind(temp_samplers1, temp_result1$samples[[i]])
     temp_samplers2 = rbind(temp_samplers2, temp_result2$samples[[i]])
   }
-  estimated_mu1 = rbind(estimated_mu1, colMeans(temp_samplers1))
-  estimated_mu2 = rbind(estimated_mu2, colMeans(temp_samplers2))
+  temp_estiamted_mu1 = colMeans(temp_samplers1)
+  temp_estiamted_mu1[3] = temp_estiamted_mu1[1] - temp_estiamted_mu1[2]
+  estimated_mu1 = rbind(estimated_mu1, temp_estiamted_mu1)
+  temp_estiamted_mu2 = colMeans(temp_samplers2)
+  temp_estiamted_mu2[3] = temp_estiamted_mu2[1] - temp_estiamted_mu2[2] 
+  estimated_mu2 = rbind(estimated_mu2, temp_estiamted_mu2)
+
+  for(i in 1:ncol(estimated_mu1)){
+    temp_lb = quantile(temp_samplers1[,i], 0.025)
+    temp_ub = quantile(temp_samplers1[,i], 0.975)
+    temp_ci1 = c(temp_ci1, temp_lb, temp_ub)
+  }
+  estimated_ci1 = rbind(estimated_ci, temp_ci1)
+
+  for(i in 1:ncol(estimated_mu2)){
+    temp_lb = quantile(temp_samplers2[,i], 0.025)
+    temp_ub = quantile(temp_samplers2[,i], 0.975)
+    temp_ci2 = c(temp_ci2, temp_lb, temp_ub)
+  }  
+  estimated_ci2 = rbind(estimated_ci2, temp_ci2)
+  
   print(paste("Simulation ", t, " is done using ", round(Sys.time() - start, 4), " seconds"))
 }
 
-filename <- paste("gemtc_simulation_high_correlation_",  Sys.Date(),".RData", sep="")
-save(estimated_mu1, estimated_mu2,file = filename)
+filename <- paste("gemtc_simulation_",  Sys.Date(),".RData", sep="")
+save(estimated_mu1, estimated_ci1, estimated_mu2,estimated_ci2, file = filename)

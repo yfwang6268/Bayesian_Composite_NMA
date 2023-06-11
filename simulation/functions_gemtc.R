@@ -1,10 +1,21 @@
 calculate_reference_std <- function(dataset, nab, nac, nbc, nabc){
-  var_BA = dataset[c(1:nab, (1+nab+nac+nbc):(nabc+nab+nac+nbc)), "sd"]^2
-  var_CA = dataset[c((1+nab):(nab+nac),(1+nab+nac+nbc+nabc):(nab+nac+nbc+2*nabc)), "sd"]^2
-  var_BC = dataset[c((1+nab+nac):(nab+nac+nbc), (1+nab+nac+nbc+2*nabc):(nab+nac+nbc+3*nabc)), "sd"]^2
+  result=NULL
+  # Two arm
+  var_BA = dataset[1:nab, "sd"]^2
+  var_CA = dataset[(1+nab):(nab+nac), "sd"]^2
+  var_BC = dataset[(1+nab+nac):(nab+nac+nbc), "sd"]^2  
   sd_result = sqrt((var_BA + var_CA - var_BC)/2)
-  study_id =  dataset[c(1:nab,(1+nab):(nab+nac), (1+nab+nac+nbc):(2*nabc+nab+nac+nbc)), "ID"]
-  result = cbind(study_id, sd_result)
+  study_id =  dataset[1:(nab+nac+nabc), "ID"]
+  result = rbind(result,cbind(study_id, sd_result))
+  
+  
+  # Three arm
+  var_BA = dataset[(1+nab+nac+nbc):(nabc+nab+nac+nbc), "sd"]^2
+  var_CA = dataset[(1+nab+nac+nbc+nabc):(nab+nac+nbc+2*nabc), "sd"]^2
+  var_BC = dataset[(1+nab+nac+nbc+2*nabc):(nab+nac+nbc+3*nabc), "sd"]^2
+  sd_result = sqrt((var_BA + var_CA - var_BC)/2)
+  study_id =  dataset[(1+nab+nac+nbc):(nabc+nab+nac+nbc), "ID"]
+  result = rbind(result,cbind(study_id, sd_result))
   colnames(result) = c("ID", "sd") 
   return(result)
 }

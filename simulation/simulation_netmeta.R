@@ -4,7 +4,7 @@ library(MASS)
 source("CLNMA_functions.R")
 source("functions_gemtc.R")
 
-simulation_times = 500
+simulation_times = 1
 set.seed(1)
 mu1 = c(0.5,1)
 mu2 = c(0,-0.5)
