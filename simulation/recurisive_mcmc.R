@@ -128,6 +128,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
     diag_H_mu = numeric(6)
     J_mu = numeric(6)
     variance_mu_mcmc = estimated_mu 
+    estimated_ci = numeric(12)
     for(k in 1:2){
         for(t1 in 1:(narm-1)){
           for(t2 in (t1+1):narm){
@@ -145,7 +146,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
             sim_result = Gibbs_Sampler_Individual(dataout, chain_length, burn_in_rate, k, t1, t2 ,narm = 3, adjustment = adjustment.method)
             estimated_mu[(k-1)*3+tau_index] = sim_result[1]
             variance_mu_mcmc[(k-1)*3+tau_index] = sim_result[2]
-            estimated_ci[(k-1)*3+tau_index,1:2 ] = sim_result[3:4]
+            estimated_ci[(2*((k-1)*3+tau_index)-1) : 2*((k-1)*3+tau_index) ] = sim_result[3:4]
             J_mu[(k-1)*3+tau_index] =  sim_result[5]
             diag_H_mu[(k-1)*3+tau_index] = sim_result[6]  
             
@@ -158,7 +159,7 @@ Gibbs_Sampler_Individual <- function(dataout, chain_length, burn_in_rate, k, t_1
     H_matrix = diag(diag_H_mu)
     cov_matrix = solve(H_matrix) %*% J_matrix  %*% solve(H_matrix)
     variance_mu_sandwich = diag(cov_matrix)
-   return(c(estimated_mu,estimated_ci,variance_mu_mcmc, variance_mu_sandwich))
+   return(c(estimated_mu,variance_mu_mcmc, variance_mu_sandwich,estimated_ci))
   }
   
   
