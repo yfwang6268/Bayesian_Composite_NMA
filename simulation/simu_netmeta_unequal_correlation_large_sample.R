@@ -12,7 +12,7 @@ tau1 =c(0.25,0.36)
 tau2 =c(0.36,0.16)
 
 tau = c(tau1,tau2)
-rho = matrix(c(1,0.1,0.1,0.1,0.1,1,0.1,0.1,0.1,0.1,1,0.1,0.1,0.1,0.1,1),
+rho = matrix(c(1,0.5,0.1,0.1,0.5,1,0.1,0.1,0.1,0.1,1,0.5,0.1,0.1,0.5,1),
              nrow = 4)
 tau_BC = tau1+tau2-2*rho[1,2]*sqrt(tau1*tau2)
 
@@ -27,7 +27,7 @@ ss1 =1
 ss2= 1
 rho_w = matrix(c(1,0.2,0.2,0.2,0.2,1,0.2,0.2,0.2,0.2,1,0.2,0.2,0.2,0.2,1),
                nrow = 4)
-nab = nac=nbc=nabc=5
+nab = nac=nbc=nabc=20
 
 index_ab = c(1:nab,(nab+nac+nbc+1):(nab+nac+nbc+1))
 index_ac = c((nab+1):(nab+nac),(nab+nac+nbc+nabc+1):(nab+nac+nbc+2*nabc))
@@ -101,5 +101,5 @@ for(t in 1:simulation_times){
   print(paste("Simulation ", t, " is done using ", round((Sys.time() - start)/60, 4), " minutes"))
 }
 
-filename <- paste("netmeta_simu_no_adjust_",  Sys.Date(),".RData", sep="")
+filename <- paste("netmeta_simu_unequal_correlation_large_sample_",  Sys.Date(),".RData", sep="")
 save(estimated_mu1,estimated_ci1, estimated_mu2, estimated_ci2, file = filename)

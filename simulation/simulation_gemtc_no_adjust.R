@@ -5,7 +5,7 @@ library(MASS)
 source("CLNMA_functions.R")
 source("functions_gemtc.R")
 
-simulation_times = 1
+simulation_times = 500
 set.seed(1)
 mu1 = c(0.5,1)
 mu2 = c(0,-0.5)
@@ -26,7 +26,7 @@ for(i in 1:3){
 }
 ss1 =1
 ss2= 1
-rho_w = matrix(c(1,0.5,0.5,0.5,0.5,1,0.5,0.5,0.5,0.5,1,0.5,0.5,0.5,0.5,1),
+rho_w = matrix(c(1,0.2,0.2,0.2,0.2,1,0.2,0.2,0.2,0.2,1,0.2,0.2,0.2,0.2,1),
                nrow = 4)
 nab = nac=nbc=nabc=5
 
@@ -108,7 +108,7 @@ for(t in 1:simulation_times){
     temp_ub = quantile(temp_samplers1[,i], 0.975)
     temp_ci1 = c(temp_ci1, temp_lb, temp_ub)
   }
-  estimated_ci1 = rbind(estimated_ci, temp_ci1)
+  estimated_ci1 = rbind(estimated_ci1, temp_ci1)
 
   for(i in 1:ncol(estimated_mu2)){
     temp_lb = quantile(temp_samplers2[,i], 0.025)
