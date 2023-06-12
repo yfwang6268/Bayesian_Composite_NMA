@@ -159,7 +159,7 @@ model {
   # Priors
   # mu
   for ( varIdx in 1:(Nvar-2) ) { 
-    mu[varIdx] ~ dnorm(0,tau2[varIdx])
+    mu[varIdx] ~ dnorm(0,1/tau2[varIdx])
   }
   dist_mu[1:6] = c(mu,mu[1] - mu[3],mu[2] - mu[4])
 
