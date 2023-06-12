@@ -36,7 +36,7 @@ chain_length <- 1000
 
 burn_in_rate <- 0.5
 
-number_of_simulation <- 1
+number_of_simulation <- 500
 
 # Single Core Running
 
@@ -50,15 +50,19 @@ for(t in 1:number_of_simulation){
   temp_simulated_data <- gendata(nab, nac, nbc, nabc, mu1, mu2, betweenv, rho_w, ss1,ss2)
   temp_posterior <- Gibbs_Sampler_Overall(temp_simulated_data , chain_length, burn_in_rate)
  # simulated_data = append(simulated_data, temp_simulated_data)
-  estimated_mu = rbind(posterior_mu, temp_posterior[1:6])
-  posterior_mu_var_posterior= rbind(posterior_mu_var_posterior, temp_posterior[7:12])
-  posterior_mu_var_sandwich = rbind(posterior_mu_var_sandwich, temp_posterior[13:18])
-  estimated_ci = rbind(posterior_mu_ci, temp_posterior[(length(temp_posterior)-11):length(temp_posterior)])
+  posterior_mu = rbind(posterior_mu, temp_posterior[[1]])
+  temp_posterior_mu_ci = NULL
+  for(i in 1:nrow(temp_posterior[[2]])){
+    temp_posterior_mu_ci = c(temp_posterior_mu_ci, temp_posterior[[2]][i,])
+  }
+  posterior_mu_ci = rbind(posterior_mu_ci, temp_posterior_mu_ci)
+  posterior_mu_var_posterior= rbind(posterior_mu_var_posterior, temp_posterior[[3]])
+  posterior_mu_var_sandwich = rbind(posterior_mu_var_sandwich, temp_posterior[[4]])
   print(paste("Simulation ", t, " is done using ", round((Sys.time() - start)/60, 4), " minutes"))
 }
 
 
 # simulation_result_matrix =  matrix(simulation_result, ncol = 12, byrow = T)
 filename <- paste("simu_blc_no_adjustment_", Sys.Date(),".RData", sep="")
-save(estimated_mu,posterior_mu_var_posterior,posterior_mu_var_sandwich,estimated_ci,file = filename)
+save(posterior_mu,posterior_mu_var_posterior,posterior_mu_var_sandwich,posterior_mu_ci,file = filename)
 
