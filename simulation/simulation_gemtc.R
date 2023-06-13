@@ -96,12 +96,13 @@ for(t in 1:simulation_times){
     temp_samplers1 = rbind(temp_samplers1, temp_result1$samples[[i]])
     temp_samplers2 = rbind(temp_samplers2, temp_result2$samples[[i]])
   }
+  temp_samplers1[,3] = temp_samplers1[,1] - temp_samplers1[,2]
   temp_estiamted_mu1 = colMeans(temp_samplers1)
-  temp_estiamted_mu1[3] = temp_estiamted_mu1[1] - temp_estiamted_mu1[2]
   estimated_mu1 = rbind(estimated_mu1, temp_estiamted_mu1)
+  temp_samplers2[,3] = temp_samplers2[,1] - temp_samplers2[,2]
   temp_estiamted_mu2 = colMeans(temp_samplers2)
-  temp_estiamted_mu2[3] = temp_estiamted_mu2[1] - temp_estiamted_mu2[2] 
   estimated_mu2 = rbind(estimated_mu2, temp_estiamted_mu2)
+  
 
   for(i in 1:ncol(estimated_mu1)){
     temp_lb = quantile(temp_samplers1[,i], 0.025)
