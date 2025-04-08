@@ -17,7 +17,7 @@ Other files are used for
 2. Data files: _CALgain.csv_; _CRC.csv_; _KTgain.csv_; _RecRed.csv_; _trt_mapping.csv_; _clean_data.csv_
 3. Results from the previous study (Buti 2013): _paper_estimate.csv_
 
-For the result interpreation and the detailed information, you can find in [our paper](https://www.medrxiv.org/content/10.1101/2024.06.25.24309477v1).
+For the result interpreation and the detailed information, you can find in [our paper](https://projecteuclid.org/journals/bayesian-analysis/advance-publication/Exploiting-Multivariate-Network-Meta-Analysis--A-Calibrated-Bayesian-Composite/10.1214/25-BA1511.full).
 
 Reference
 
