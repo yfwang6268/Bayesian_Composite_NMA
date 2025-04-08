@@ -1,6 +1,6 @@
 # Bayesian Composite Likelihood method with the open-faced sandwich adjustment (OFS) for Multivairate network meta-analysis
 
-This repo is to implement Bayesian Composite Likelihood method with open-faced adjustment (BCL-OFS) in our paper ["Exploiting multivariate network meta-analysis: A calibrated Bayesian composite likelihood inference" by Yifei Wang, Lifeng Lin and Yulun Liu](https://www.medrxiv.org/content/10.1101/2024.06.25.24309477v1) 
+This repo is to implement Bayesian Composite Likelihood method with open-faced adjustment (BCL-OFS) in our paper ["Exploiting multivariate network meta-analysis: A calibrated Bayesian composite likelihood inference" by Yifei Wang, Lifeng Lin and Yulun Liu](https://projecteuclid.org/journals/bayesian-analysis/advance-publication/Exploiting-Multivariate-Network-Meta-Analysis--A-Calibrated-Bayesian-Composite/10.1214/25-BA1511.full) 
 
 The proposed method eliminated the need to specify a full likelihood function while allowing for the unavailability of within-study correlations among treatments and outcomes. Additionally, we developed a hybrid Gibbs sampler algorithm along with the Open-Faced Sandwich post-sampling adjustment to enable robust posterior inference.
 
